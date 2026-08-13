@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error Page</title>
+    <script>
+        function getParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        window.onload = function() {
+            document.getElementById('errorCode').textContent = getParameter('errorCode');
+            document.getElementById('errorText').textContent = getParameter('errorText');
+            document.getElementById('failedUrl').textContent = getParameter('failedUrl');
+        };
+    </script>
+</head>
+<body>
+    <h2>Failed to load URL <span id="failedUrl"></span></h2>
+    <p>Error: <span id="errorText"></span> (<span id="errorCode"></span>)</p>
+</body>
+</html>

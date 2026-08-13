@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="3DGS-CEF-App/3DGS-CEF-App.vcxproj" Id="9e8bb326-f712-3320-946a-b3a6b8cac815" />
+</Solution>

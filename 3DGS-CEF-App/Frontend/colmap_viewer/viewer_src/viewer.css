@@ -1,0 +1,64 @@
+.colmap-viewer-host {
+    --viewer-ink: #202226;
+    --viewer-line: #d9d9d7;
+    --viewer-red: #b21f1a;
+    --viewer-font-family: var(--pst-font-family-base, "Helvetica Neue", Helvetica, Arial, sans-serif);
+    color: var(--viewer-ink);
+    margin: 0;
+}
+
+.colmap-viewer-host .colmap-viewer {
+    background: #fff;
+    border: 1px solid var(--viewer-line);
+    border-radius: 0.45rem;
+    font-family: var(--viewer-font-family);
+    height: 100%;
+    overflow: hidden;
+}
+
+.colmap-viewer-host .viewer-workspace {
+    height: 100%;
+    min-height: 480px;
+}
+
+.colmap-viewer-host .viewer-stage {
+    background: #fff;
+    height: 100%;
+    min-width: 0;
+    position: relative;
+}
+
+.colmap-viewer-host .viewer-canvas {
+    display: block;
+    height: 100%;
+    outline: none;
+    touch-action: none;
+    width: 100%;
+}
+
+.colmap-viewer-host .viewer-status {
+    background: rgb(32 34 38 / 88%);
+    border-radius: 0.25rem;
+    bottom: 0.75rem;
+    color: #fff;
+    left: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    min-width: 12rem;
+    overflow-wrap: anywhere;
+    padding: 0.42rem 0.65rem;
+    position: absolute;
+    z-index: 5;
+}
+
+.colmap-viewer-host .viewer-status.is-error {
+    background: #8f1b18;
+}
+
+.colmap-viewer-host .viewer-fatal {
+    background: #fff1f0;
+    border: 1px solid #b21f1a;
+    border-radius: 0.35rem;
+    color: #7f1713;
+    font-family: var(--viewer-font-family);
+    padding: 1rem;
+}

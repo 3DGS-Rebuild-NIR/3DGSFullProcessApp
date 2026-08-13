@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9E8BB326-F712-3320-946A-B3A6B8CAC815}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>3DGS</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <LocalDebuggerCommand Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/cefsimple.exe</LocalDebuggerCommand>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <LocalDebuggerCommand Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/cefsimple.exe</LocalDebuggerCommand>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>
+      </BufferSecurityCheck>
+      <CallingConvention>
+      </CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4244;4324;4481;4512;4701;4702;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>
+      </FloatingPointModel>
+      <ForceConformanceInForLoopScope>
+      </ForceConformanceInForLoopScope>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData>
+      </RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType>
+      </TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;_WIN32;UNICODE;_UNICODE;WINVER=0x0A00;_WIN32_WINNT=0x0A00;NTDDI_VERSION=NTDDI_WIN10_FE;NOMINMAX;WIN32_LEAN_AND_MEAN;_HAS_EXCEPTIONS=0;CEF_USE_BOOTSTRAP;CEF_USE_ATL;CMAKE_INTDIR="Debug";cefsimple_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;_WIN32;UNICODE;_UNICODE;WINVER=0x0A00;_WIN32_WINNT=0x0A00;NTDDI_VERSION=NTDDI_WIN10_FE;NOMINMAX;WIN32_LEAN_AND_MEAN;_HAS_EXCEPTIONS=0;CEF_USE_BOOTSTRAP;CEF_USE_ATL;CMAKE_INTDIR=\"Debug\";cefsimple_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>																	Setting LPAC ACLs...</Message>
+      <Command>setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/bootstrap.exe C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/cefsimple.exe
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/chrome_elf.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/chrome_elf.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/d3dcompiler_47.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/d3dcompiler_47.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/libcef.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/libcef.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/libEGL.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/libEGL.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/libGLESv2.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/libGLESv2.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/v8_context_snapshot.bin C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/v8_context_snapshot.bin
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/vk_swiftshader.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/vk_swiftshader.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/vk_swiftshader_icd.json C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/vk_swiftshader_icd.json
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/vulkan-1.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/vulkan-1.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/dxil.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/dxil.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Debug/dxcompiler.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/dxcompiler.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/chrome_100_percent.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/chrome_100_percent.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/chrome_200_percent.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/chrome_200_percent.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/resources.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/resources.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/icudtl.dat C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/icudtl.dat
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/locales C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/locales
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+icacls C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug /grant *S-1-15-2-2:(OI)(CI)(RX)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+xcopy /Y /D /I "C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\bin\*.dll" "C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug\\"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64\Debug\libcef.lib;..\..\libcef_dll_wrapper\Debug\libcef_dll_wrapper.lib;comctl32.lib;crypt32.lib;delayimp.lib;gdi32.lib;rpcrt4.lib;shlwapi.lib;wintrust.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <DelayLoadDLLs>libcef.dll;api-ms-win-core-synch-l1-2-0.dll;api-ms-win-core-winrt-error-l1-1-0.dll;api-ms-win-core-winrt-l1-1-0.dll;api-ms-win-core-winrt-string-l1-1-0.dll;advapi32.dll;bcryptprimitives.dll;comctl32.dll;comdlg32.dll;credui.dll;cryptui.dll;d3d11.dll;d3d12.dll;d3d9.dll;dbghelp.dll;dcomp.dll;dwmapi.dll;dxgi.dll;dxva2.dll;esent.dll;fontsub.dll;gdi32.dll;hid.dll;imagehlp.dll;imm32.dll;mmdevapi.dll;msi.dll;netapi32.dll;ncrypt.dll;ole32.dll;oleacc.dll;oleaut32.dll;pdh.dll;propsys.dll;psapi.dll;rpcrt4.dll;rstrtmgr.dll;setupapi.dll;shell32.dll;shlwapi.dll;uiautomationcore.dll;urlmon.dll;user32.dll;usp10.dll;uxtheme.dll;wer.dll;wevtapi.dll;wininet.dll;winusb.dll;wsock32.dll;wtsapi32.dll;crypt32.dll;dhcpcsvc.dll;dwrite.dll;iphlpapi.dll;secur32.dll;userenv.dll;winhttp.dll;winmm.dll;winspool.drv;wintrust.dll;ws2_32.dll</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>
+      </ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/cefsimple.lib</ImportLibrary>
+      <LinkErrorReporting>
+      </LinkErrorReporting>
+      <ProgramDataBaseFile>C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Debug/cefsimple.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>
+      </RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>
+      </BufferSecurityCheck>
+      <CallingConvention>
+      </CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4244;4324;4481;4512;4701;4702;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>
+      </FloatingPointModel>
+      <ForceConformanceInForLoopScope>
+      </ForceConformanceInForLoopScope>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData>
+      </RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType>
+      </TreatWChar_tAsBuiltInType>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;_WIN32;UNICODE;_UNICODE;WINVER=0x0A00;_WIN32_WINNT=0x0A00;NTDDI_VERSION=NTDDI_WIN10_FE;NOMINMAX;WIN32_LEAN_AND_MEAN;_HAS_EXCEPTIONS=0;CEF_USE_BOOTSTRAP;CEF_USE_ATL;_NDEBUG;CMAKE_INTDIR="Release";cefsimple_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;_WIN32;UNICODE;_UNICODE;WINVER=0x0A00;_WIN32_WINNT=0x0A00;NTDDI_VERSION=NTDDI_WIN10_FE;NOMINMAX;WIN32_LEAN_AND_MEAN;_HAS_EXCEPTIONS=0;CEF_USE_BOOTSTRAP;CEF_USE_ATL;_NDEBUG;CMAKE_INTDIR=\"Release\";cefsimple_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>																	Setting LPAC ACLs...</Message>
+      <Command>setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/bootstrap.exe C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/cefsimple.exe
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/chrome_elf.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/chrome_elf.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/d3dcompiler_47.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/d3dcompiler_47.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/libcef.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/libcef.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/libEGL.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/libEGL.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/libGLESv2.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/libGLESv2.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/v8_context_snapshot.bin C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/v8_context_snapshot.bin
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/vk_swiftshader.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/vk_swiftshader.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/vk_swiftshader_icd.json C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/vk_swiftshader_icd.json
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/vulkan-1.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/vulkan-1.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/dxil.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/dxil.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Release/dxcompiler.dll C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/dxcompiler.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/chrome_100_percent.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/chrome_100_percent.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/chrome_200_percent.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/chrome_200_percent.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/resources.pak C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/resources.pak
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_if_different C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/icudtl.dat C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/icudtl.dat
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E copy_directory C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/Resources/locales C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/locales
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+icacls C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release /grant *S-1-15-2-2:(OI)(CI)(RX)
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+xcopy /Y /D /I "C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\bin\*.dll" "C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release\\"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64\Release\libcef.lib;C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64\build\libcef_dll_wrapper\Release\libcef_dll_wrapper.lib;comctl32.lib;crypt32.lib;delayimp.lib;gdi32.lib;rpcrt4.lib;shlwapi.lib;wintrust.lib;ws2_32.lib;kernel32.lib;user32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\WKSPC\CPP\CEFApp\3DGS-CEF-App\third_party\ffmpeg\ffmpeg-master-latest-win64-gpl-shared\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <DelayLoadDLLs>libcef.dll;advapi32.dll;bcryptprimitives.dll;comctl32.dll;comdlg32.dll;credui.dll;cryptui.dll;d3d11.dll;d3d12.dll;d3d9.dll;dbghelp.dll;dcomp.dll;dwmapi.dll;dxgi.dll;dxva2.dll;esent.dll;fontsub.dll;gdi32.dll;hid.dll;imagehlp.dll;imm32.dll;mmdevapi.dll;msi.dll;netapi32.dll;ncrypt.dll;ole32.dll;oleacc.dll;oleaut32.dll;pdh.dll;propsys.dll;psapi.dll;rpcrt4.dll;rstrtmgr.dll;setupapi.dll;shell32.dll;shlwapi.dll;uiautomationcore.dll;urlmon.dll;user32.dll;usp10.dll;uxtheme.dll;wer.dll;wevtapi.dll;wininet.dll;winusb.dll;wsock32.dll;wtsapi32.dll;crypt32.dll;dhcpcsvc.dll;dwrite.dll;iphlpapi.dll;secur32.dll;userenv.dll;winhttp.dll;winmm.dll;winspool.drv;wintrust.dll;ws2_32.dll</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>
+      </ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/cefsimple.lib</ImportLibrary>
+      <LinkErrorReporting>
+      </LinkErrorReporting>
+      <ProgramDataBaseFile>C:/WKSPC/CPP/cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64/build/tests/cefsimple/Release/cefsimple.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress>
+      </RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AppSchemeHandler.cpp" />
+    <ClCompile Include="CefControl.cpp" />
+    <ClCompile Include="FileAPIHandler.cpp" />
+    <ClCompile Include="CefHandler.cpp" />
+    <ClCompile Include="DialogHandler.cpp" />
+    <ClCompile Include="Encoding.cpp" />
+    <ClCompile Include="ExceptionHandler.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MoterControlHandler.cpp" />
+    <ClCompile Include="MotorController.cpp" />
+    <ClCompile Include="PreprocessorCore.cpp" />
+    <ClCompile Include="PreprocessorHandler.cpp" />
+    <ClCompile Include="3dgsHandler.cpp" />
+    <ClCompile Include="SystemUsage.cpp" />
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64\build\ZERO_CHECK.vcxproj">
+      <Project>{285CC4F2-7E40-31E8-B775-42C3D8EB6534}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\WKSPC\CPP\cef_binary_148.0.10+g7ee53f5+chromium-148.0.7778.218_windows64\build\libcef_dll_wrapper\libcef_dll_wrapper.vcxproj">
+      <Project>{EE5FDE5B-B047-3A0B-9CD0-F6A7E30AFEDD}</Project>
+      <Name>libcef_dll_wrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AppSchemeHandler.h" />
+    <ClInclude Include="CefControl.h" />
+    <ClInclude Include="FileAPIHandler.h" />
+    <ClInclude Include="CefHandler.h" />
+    <ClInclude Include="DialogHandler.h" />
+    <ClInclude Include="Encoding.h" />
+    <ClInclude Include="ExceptionHandler.h" />
+    <ClInclude Include="MotorControlHandler.h" />
+    <ClInclude Include="MotorController.h" />
+    <ClInclude Include="PreprocessorCore.h" />
+    <ClInclude Include="PreprocessorHandler.h" />
+    <ClInclude Include="3dgsHandler.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SystemUsage.h" />
+    <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

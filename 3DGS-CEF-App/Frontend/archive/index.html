@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3DGS视频预处理器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--primary:#4f46e5;--primary-hover:#4338ca;--primary-light:#eef2ff;
+--primary-gradient:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);
+--success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--error:#ef4444;
+--bg:#f1f5f9;--card-bg:#fff;--text:#1e293b;--text-sec:#64748b;--border:#e2e8f0;
+--radius:8px;--radius-sm:6px
+}
+html,body{height:100vh;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
+body{display:flex;flex-direction:column;padding:8px 10px;gap:6px}
+
+header{display:flex;align-items:center;gap:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.logo{width:28px;height:28px;background:var(--primary-gradient);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+header h1{font-size:14px;font-weight:700;white-space:nowrap}
+.status-group{display:flex;align-items:center;gap:8px;margin-left:auto}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px rgba(16,185,129,.5);flex-shrink:0}
+.status-dot.processing{background:var(--warning);animation:pulse 1.5s infinite;box-shadow:0 0 6px rgba(245,158,11,.5)}
+.status-dot.error{background:var(--error);box-shadow:0 0 6px rgba(239,68,68,.5)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
+.status-text{font-size:11px;color:var(--text-sec);font-weight:500;white-space:nowrap}
+
+footer{display:flex;align-items:center;gap:8px;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.steps{display:flex;gap:4px;flex-shrink:0}
+.step{display:flex;align-items:center;gap:4px;padding:3px 8px;font-size:11px;font-weight:500;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text-sec);transition:all .25s ease}
+.step.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.step.done{background:var(--success-light);border-color:var(--success);color:var(--success)}
+.step-num{width:16px;height:16px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .25s ease}
+.step.active .step-num{background:var(--primary);color:#fff}
+.step.done .step-num{background:var(--success);color:#fff}
+.footer-progress{flex:1;display:flex;align-items:center;gap:8px;max-width:200px}
+.footer-progress .bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.footer-progress .fill{height:100%;width:0%;background:var(--primary-gradient);border-radius:2px;transition:width .4s ease}
+footer button{margin-left:auto}
+
+main{flex:1;display:flex;gap:8px;min-height:0}
+.col{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;box-shadow:0 1px 2px rgba(0,0,0,.04);flex-shrink:0}
+.card-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card-title::before{content:'';width:3px;height:12px;background:var(--primary-gradient);border-radius:2px}
+.card.flex-fill{flex:1;min-height:0;display:flex;flex-direction:column}
+.form-row{display:flex;gap:8px;margin-bottom:4px}.form-row:last-child{margin-bottom:0}
+.form-row.cols-2>.form-group{flex:1}
+.form-group{display:flex;flex-direction:column;gap:2px}
+.form-group label{font-size:10px;font-weight:500;color:var(--text-sec)}
+input,select{height:26px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;color:var(--text);background:#fff;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-light)}
+input::placeholder{color:#cbd5e1}
+.input-row{display:flex;gap:4px}.input-row input{flex:1}
+
+button{height:26px;padding:0 10px;border:none;border-radius:var(--radius-sm);font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:all .2s ease;white-space:nowrap;flex-shrink:0}
+button:disabled{opacity:.45;cursor:not-allowed}
+.btn-p{background:var(--primary-gradient);color:#fff;box-shadow:0 1px 4px rgba(79,70,229,.25)}
+.btn-p:hover:not(:disabled){box-shadow:0 2px 8px rgba(79,70,229,.35)}
+.btn-s{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn-s:hover:not(:disabled){background:var(--border)}
+.btn-g{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 1px 4px rgba(16,185,129,.25)}
+.btn-g:hover:not(:disabled){box-shadow:0 2px 8px rgba(16,185,129,.35)}
+.btn-w{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-w:hover:not(:disabled){box-shadow:0 2px 8px rgba(245,158,11,.35)}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px}
+.info-item{text-align:center;padding:4px 2px;background:var(--bg);border-radius:var(--radius-sm)}
+.info-val{font-size:14px;font-weight:700;color:var(--primary)}
+.info-lbl{font-size:8px;color:var(--text-sec);margin-top:1px;text-transform:uppercase;letter-spacing:.3px}
+.info-desc{font-size:9px;color:var(--text-sec);margin:4px 0 2px;padding:3px 6px;background:var(--primary-light);border-radius:4px;display:inline-block}
+
+.log-wrap{flex:1;min-height:0;display:flex;flex-direction:column}
+.log-box{flex:1;min-height:0;background:#0f172a;border-radius:var(--radius-sm);padding:6px 8px;overflow-y:auto;font-family:'Consolas','Courier New',monospace;font-size:10px;line-height:1.5}
+.log-box .e{color:#94a3b8;margin-bottom:1px}
+.log-box .e.s{color:#34d399}
+.log-box .e.er{color:#f87171}
+.log-box .e.i{color:#60a5fa}
+.log-actions{margin-top:4px;display:flex;justify-content:center}
+
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.dialog-box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:14px;width:270px;z-index:1000;padding:20px 16px 0;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:scaleIn .25s ease}
+@keyframes scaleIn{from{transform:translate(-50%,-50%) scale(.9);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.dialog-title{font-size:17px;font-weight:600;color:#1d1d1f;margin-bottom:6px}
+.dialog-msg{font-size:13px;color:#666;line-height:1.5;margin-bottom:20px}
+.dialog-sep{height:1px;background:var(--border);margin:0 -16px}
+.dialog-btns{display:flex;margin:0 -16px}
+.dialog-btns button{flex:1;height:44px;border:none;background:transparent;font-size:17px;font-weight:500;cursor:pointer;border-radius:0;transition:background .15s}
+.dialog-btns button:active{background:rgba(0,0,0,.05)}
+.dialog-cancel{color:#007aff;font-weight:400!important}
+.dialog-confirm{color:#007aff;font-weight:600!important}
+.dialog-btns.two .dialog-cancel{border-right:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">3D</div>
+<h1>3DGS 视频预处理器</h1>
+<div class="status-group">
+<div class="status-dot" id="statusDot"></div>
+<span class="status-text" id="statusText">就绪</span>
+</div>
+</header>
+
+<main>
+<div class="col">
+<div class="card">
+<div class="card-title">视频处理</div>
+<div class="form-group" style="margin-bottom:4px">
+<label>视频文件</label>
+<div class="input-row"><input id="videoPath" placeholder="选择视频文件..." readonly><button class="btn-s" onclick="pickVideo()">浏览</button></div>
+</div>
+<div class="form-group" style="margin-bottom:4px">
+<label>输出目录</label>
+<div class="input-row"><input id="outputDir" placeholder="选择输出目录..."><button class="btn-s" onclick="pickDir('outputDir')">浏览</button></div>
+</div>
+<div class="form-row cols-2">
+<div class="form-group"><label>目标图片数</label><input type="number" id="numImgs" value="400" min="1"></div>
+</div>
+<div class="info-grid" id="videoInfoPanel" style="display:none">
+<div class="info-item"><div class="info-val" id="infoWidth">-</div><div class="info-lbl">W</div></div>
+<div class="info-item"><div class="info-val" id="infoHeight">-</div><div class="info-lbl">H</div></div>
+<div class="info-item"><div class="info-val" id="infoFps">-</div><div class="info-lbl">FPS</div></div>
+<div class="info-item"><div class="info-val" id="infoDuration">-</div><div class="info-lbl">DUR</div></div>
+<div class="info-item"><div class="info-val" id="infoSplitH">-</div><div class="info-lbl">SPLIT</div></div>
+<div class="info-item"><div class="info-val" id="infoOutFps">-</div><div class="info-lbl">OUT</div></div>
+</div>
+
+<div class="btn-row" style="margin-top:6px">
+<button class="btn-p" onclick="splitVideo()" id="btnSplit">分割视频</button>
+<button class="btn-p" onclick="extractRGBFrames()" id="btnExtractRGB">提取RGB视频帧</button>
+<button class="btn-p" onclick="extractIRFrames()" id="btnExtractIR">提取IR视频帧</button>
+<button class="btn-s" onclick="clearVideoInput()">清空输入</button>
+</div>
+</div>
+
+<div class="card flex-fill">
+<div class="card-title">COLMAP 处理</div>
+<div class="form-group" style="margin-bottom:4px">
+<label>图像目录 (RGB 图集)</label>
+<div class="input-row"><input id="imageDir" placeholder="选择或输入 imgs 目录"><button class="btn-s" onclick="pickDir('imageDir')">浏览</button></div>
+</div>
+<div class="form-row cols-2">
+<div class="form-group"><label>数据库路径</label><input id="databasePath" placeholder="database.db"></div>
+<div class="form-group"><label>稀疏模型输出</label><input id="sparseOutputPath" placeholder="sparse 目录"></div>
+</div>
+<div class="btn-row" style="margin-top:6px">
+<button class="btn-g" onclick="colmapFeatureExtract()" id="btnFeature">特征提取</button>
+<button class="btn-g" onclick="colmapExhaustiveMatch()" id="btnMatch">特征匹配</button>
+<button class="btn-g" onclick="colmapMapper()" id="btnMapper">三维重建</button>
+<button class="btn-s" onclick="clearColmapInput()">清空输入</button>
+</div>
+</div>
+</div>
+
+<div class="col">
+<div class="card flex-fill">
+<div class="card-title">处理日志</div>
+<div class="log-wrap">
+<div class="log-box" id="logContainer"></div>
+<div class="log-actions"><button class="btn-s" onclick="clearLog()">清空日志</button></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer>
+<div class="steps">
+<div class="step" id="step1"><span class="step-num">1</span><span>配置</span></div>
+<div class="step" id="step2"><span class="step-num">2</span><span>信息</span></div>
+<div class="step" id="step3"><span class="step-num">3</span><span>分割</span></div>
+<div class="step" id="step4"><span class="step-num">4</span><span>提取</span></div>
+<div class="step" id="step5"><span class="step-num">5</span><span>特征</span></div>
+<div class="step" id="step6"><span class="step-num">6</span><span>匹配</span></div>
+<div class="step" id="step7"><span class="step-num">7</span><span>重建</span></div>
+</div>
+<div class="footer-progress"><div class="bar"><div class="fill" id="progressFill"></div></div></div>
+<button class="btn-p" onclick="runFullPipeline()" id="btnFullPipeline">一键全流程</button>
+</footer>
+
+<div id="iosDialog" style="display:none">
+<div class="dialog-overlay" onclick="closeDialog(false)"></div>
+<div class="dialog-box">
+<div class="dialog-title" id="dialogTitle">提示</div>
+<div class="dialog-msg" id="dialogMsg"></div>
+<div class="dialog-sep"></div>
+<div class="dialog-btns two">
+<button class="dialog-cancel" id="dialogCancel" onclick="closeDialog(false)">取消</button>
+<button class="dialog-confirm" id="dialogConfirm" onclick="closeDialog(true)">确定</button>
+</div>
+</div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>

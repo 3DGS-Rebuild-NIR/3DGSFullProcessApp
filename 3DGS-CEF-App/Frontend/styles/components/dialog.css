@@ -1,0 +1,19 @@
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.dialog-box{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(255,255,255,.95);backdrop-filter:blur(20px);
+  border-radius:14px;width:280px;z-index:1000;padding:20px 16px 0;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:scaleIn .25s ease;
+}
+@keyframes scaleIn{from{transform:translate(-50%,-50%) scale(.9);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.dialog-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.dialog-msg{font-size:12px;color:var(--ink-2);line-height:1.5;margin-bottom:20px}
+.dialog-sep{height:1px;background:var(--line);margin:0 -16px}
+.dialog-btns{display:flex;margin:0 -16px}
+.dialog-btns button{flex:1;height:44px;border:none;background:transparent;font-size:15px;font-weight:500;cursor:pointer;border-radius:0;transition:background .15s}
+.dialog-btns button:active{background:rgba(0,0,0,.05)}
+.dialog-cancel{color:var(--blue);font-weight:400!important}
+.dialog-confirm{color:var(--blue);font-weight:600!important}
+.dialog-btns.two .dialog-cancel{border-right:1px solid var(--line)}

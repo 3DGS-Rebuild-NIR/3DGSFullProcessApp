@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IR强化的3DGS全链路重建系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/app.css">
+<script type="module" src="viewer/mount.js"></script>
+<!-- Three.js for PLY model preview -->
+  <script src="vendor/babylon/babylon.js"></script>
+  <script src="vendor/babylon/babylonjs.loaders.min.js"></script>
+<link rel="stylesheet" href="styles/components/dialog.css">
+<link rel="stylesheet" href="styles/components/toast.css">
+<link rel="stylesheet" href="styles/components/settings.css">
+<link rel="stylesheet" href="styles/pages/preproc.css">
+<link rel="stylesheet" href="styles/pages/capture.css">
+<link rel="stylesheet" href="styles/pages/recon.css">
+<link rel="stylesheet" href="viewer/viewer.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand"><span class="logo"><img src="icon.png" alt=""></span><span class="txt">IR强化的3DGS全链路重建系统</span></div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-tab="capture">拍摄系统</button>
+      <button class="tab active" data-tab="preproc">重建预处理系统</button>
+      <button class="tab" data-tab="recon">主重建系统（3DGS + IR强化）</button>
+    </nav>
+    <div class="right">
+      <button class="settings" id="settingsBtn" title="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        设置
+      </button>
+      <div class="win-controls">
+        <button class="win-btn" id="winMin" title="最小化">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+        <button class="win-btn" id="winMax" title="最大化">
+          <svg class="ic-max" viewBox="0 0 10 10"><rect x="1.4" y="1.4" width="7.2" height="7.2" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          <svg class="ic-restore" viewBox="0 0 10 10" style="display:none"><path d="M2.5 2.5h5v5h-5z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 2.5V1.6h5.9v5.9h-.9" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+        <button class="win-btn win-close" id="winClose" title="关闭">
+          <svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace" id="workspace">
+
+    <!-- ===== LEFT: 输入设置 ===== -->
+    <section class="col col-left" data-pane="preproc">
+      <div class="card">
+        <div class="card-title">输入设置</div>
+        <div class="form-group">
+          <label>输入模式</label>
+          <select id="inputMode" onchange="onInputModeChange()">
+            <option value="fused">上下融合视频</option>
+            <option value="independent" selected>独立视频</option>
+          </select>
+        </div>
+        <div class="form-group" id="fusedVideoGroup">
+          <label>视频路径</label>
+          <div class="input-row">
+            <input type="text" id="videoPath" placeholder="选择视频文件...">
+            <button class="btn" onclick="pickVideo('videoPath')" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <span class="info-hint">格式支持：.mp4, .mov, .avi, .mkv ｜ 建议：1080P 及以上</span>
+        </div>
+        <div class="form-group" id="independentVideoGroup" style="display:none">
+          <label>RGB 视频路径</label>
+          <div class="input-row">
+            <input type="text" id="rgbPath" placeholder="选择 RGB 视频文件...">
+            <button class="btn" onclick="pickVideo('rgbPath')" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <label>IR 视频路径</label>
+          <div class="input-row">
+            <input type="text" id="irPath" placeholder="选择 IR 视频文件...">
+            <button class="btn" onclick="pickVideo('irPath')" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <span class="info-hint">RGB 与 IR 视频需同一时段拍摄，时长尽量一致</span>
+        </div>
+        <div class="form-group">
+          <label>输出目录</label>
+          <div class="input-row">
+            <input type="text" id="outputDir" placeholder="选择输出目录..." onchange="onOutputDirChange()">
+            <button class="btn" onclick="pickDir('outputDir')" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>目标帧数量</label>
+          <div class="input-row">
+            <input type="number" id="numImgs" value="360" min="1">
+            <span style="font-size:11px;color:var(--ink-3);display:flex;align-items:center;padding-left:4px">帧</span>
+          </div>
+          <span class="info-hint" id="videoInfoHint">原始时长：-  原始帧率：-  预计抽帧间隔：-</span>
+        </div>
+        <div class="form-group">
+          <label>图像尺寸（可选）</label>
+          <select id="imgSize">
+            <option value="original">保持原始尺寸</option>
+            <option value="1920">1920px（宽度）</option>
+            <option value="1280">1280px（宽度）</option>
+            <option value="640">640px（宽度）</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">COLMAP 设置</div>
+        <div class="form-group">
+          <label>特征提取器</label>
+          <select id="colmapFeature">
+            <option value="SIFT" selected>SIFT</option>
+            <option value="ORB">ORB</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>匹配器</label>
+          <select id="colmapMatcher">
+            <option value="sequential" selected>Sequential</option>
+            <option value="exhaustive">Exhaustive</option>
+            <option value="vocab_tree">VocabTree</option>
+          </select>
+        </div>
+        <div class="advanced-toggle" id="advToggle" onclick="toggleAdvanced()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          高级选项
+        </div>
+        <div class="advanced-body" id="advBody">
+          <div class="form-group">
+            <label>图像目录 (RGB 图集)</label>
+            <div class="input-row">
+              <input type="text" id="imageDir" placeholder="选择或输入 imgs 目录">
+              <button class="btn" onclick="pickDir('imageDir')" title="浏览">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>数据库路径</label>
+            <input type="text" id="databasePath" placeholder="database.db">
+          </div>
+          <div class="form-group">
+            <label>稀疏模型输出</label>
+            <input type="text" id="sparseOutputPath" placeholder="sparse 目录">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:auto">
+        <div class="btn-row">
+          <button class="btn-p" style="flex:1;height:36px;font-size:12px" onclick="runFullPipeline()" id="btnFullPipeline">开始预处理</button>
+          <button class="btn btn-danger" style="height:36px" onclick="stopPipeline()" id="btnStop" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            停止
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MIDDLE: COLMAP 预览 + 图集 ===== -->
+    <section class="col col-mid" data-pane="preproc">
+      <div class="card stretch" style="max-height:clamp(800px,300vh,1900px)">
+        <div class="viewer-header">
+          <div class="t">COLMAP 点云预览</div>
+          <div class="viewer-tools">
+            <button title="重置视图" onclick="resetViewer()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+            <div class="viewer-select">
+              <select id="viewerMode">
+                <option value="points">点云</option>
+                <option value="cameras">相机</option>
+                <option value="both">全部</option>
+              </select>
+            </div>
+            <button title="全屏" onclick="toggleFullscreen()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="viewer-controls-bar">
+          <label>投影
+            <select id="colmapProjection">
+              <option value="perspective">透视</option>
+              <option value="orthographic">正交</option>
+            </select>
+          </label>
+          <label>点大小 <input id="colmapPointSize" type="range" min="0.5" max="100" step="0.5" value="2"></label>
+          <label>相机大小 <input id="colmapCameraSize" type="range" min="0.000001" max="1" step="0.0005" value="0.025"></label>
+        </div>
+        <div class="viewer-wrap" id="viewerWrap">
+          <div class="viewer-loading" id="viewerLoading">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <b>COLMAP 点云可视化</b>
+            <span>渲染引擎接入后在此显示稀疏点云<br>与相机位姿</span>
+          </div>
+          <div id="colmap-viewer-root" style="width:100%;height:100%;display:none"></div>
+        </div>
+        <div class="viewer-stats" id="viewerStats" style="display:none">
+          <span>点云：<b id="statPoints">-</b></span>
+          <span>相机：<b id="statCameras">-</b></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="gallery-header">
+          <div class="t">图像预览（抽帧结果）</div>
+          <span class="gallery-count" id="galleryCount">- 张</span>
+        </div>
+        <div class="gallery-grid" id="galleryGrid">
+          <div class="gallery-ph">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>等待抽帧完成</span>
+          </div>
+        </div>
+        <div class="gallery-pagination" id="galleryPagination"></div>
+      </div>
+    </section>
+
+    <!-- ===== RIGHT: 处理进度 + 日志 + 结果 ===== -->
+    <section class="col col-right" data-pane="preproc">
+      <div class="card">
+        <div class="card-title">处理进度</div>
+        <div class="stepper" id="stepper">
+          <div class="step-item" data-step="1">
+            <div class="step-icon">1</div>
+            <div class="step-label">视频切帧</div>
+            <div class="step-sub" id="step1Sub">-</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-item" data-step="2">
+            <div class="step-icon">2</div>
+            <div class="step-label">特征提取</div>
+            <div class="step-sub" id="step2Sub">-</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-item" data-step="3">
+            <div class="step-icon">3</div>
+            <div class="step-label">特征匹配</div>
+            <div class="step-sub" id="step3Sub">-</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-item" data-step="4">
+            <div class="step-icon">4</div>
+            <div class="step-label">COLMAP 重建</div>
+            <div class="step-sub" id="step4Sub">-</div>
+            <div class="step-connector"></div>
+          </div>
+          <div class="step-item" data-step="5">
+            <div class="step-icon">5</div>
+            <div class="step-label">完成</div>
+            <div class="step-sub" id="step5Sub">-</div>
+          </div>
+        </div>
+        <div class="progress-text">
+          <span id="progressLabel">等待开始</span>
+        </div>
+      </div>
+
+      <div class="card stretch">
+        <div class="card-title">日志输出</div>
+        <div class="log-box" id="logContainer"></div>
+        <div class="log-actions">
+          <button class="btn" onclick="clearLog()">清空日志</button>
+          <button class="btn" onclick="downloadLog()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            保存日志
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">处理结果</div>
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="result-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </span>
+            <div class="result-val" id="resImages">-</div>
+            <div class="result-lbl">输出图像</div>
+          </div>
+          <div class="result-item">
+            <span class="result-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" width="16" height="16"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </span>
+            <div class="result-val" id="resPoints">-</div>
+            <div class="result-lbl">三维点</div>
+          </div>
+          <div class="result-item">
+            <span class="result-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <div class="result-val" id="resRegistered">-</div>
+            <div class="result-lbl">注册图像</div>
+          </div>
+          <div class="result-item">
+            <span class="result-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+            <div class="result-val" id="resError">-</div>
+            <div class="result-lbl">重投影误差</div>
+          </div>
+          <div class="result-item">
+            <span class="result-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+            <div class="result-val" id="resTime">-</div>
+            <div class="result-lbl">总耗时</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn" onclick="openOutputDir()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            打开输出目录
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CAPTURE: LEFT ===== -->
+    <section class="col col-left" data-pane="capture" style="display:none">
+      <div class="card">
+        <div class="card-title">设备连接</div>
+        <div class="device" data-device="rgb" title="RGB 相机 · 点击切换连接" style="opacity:0.5">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="meta"><b>RGB 相机</b><small>未连接</small></div>
+          <span class="st" style="color:var(--ink-3)">断开</span>
+        </div>
+        <div class="device" data-device="ir" title="IR 相机 · 点击切换连接" style="opacity:0.5">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="meta"><b>IR 相机</b><small>未连接</small></div>
+          <span class="st" style="color:var(--ink-3)">断开</span>
+        </div>
+        <div class="device" data-device="motor" title="电机控制器 · 点击切换连接" style="opacity:0.5">
+          <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg></div>
+          <div class="meta"><b>电机控制器</b><small>未连接</small></div>
+          <span class="st" style="color:var(--ink-3)">断开</span>
+        </div>
+      </div>
+
+      <div class="card stretch">
+        <div class="card-title">运动控制</div>
+        <div class="dpad">
+          <button class="key w" data-dir="up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><b>W</b></button>
+          <button class="key a" data-dir="ccw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg><b>A</b></button>
+          <button class="key s" data-dir="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg><b>S</b></button>
+          <button class="key d" data-dir="cw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg><b>D</b></button>
+        </div>
+
+        <div class="slider-row">
+          <div class="lab"><span>上下 (W/S · DC PWM)</span><b id="vDCPWM">0</b></div>
+          <input type="range" id="sDCPWM" min="0" max="255" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="lab"><span>左右 (A/D · 步进 RPM)</span><b id="vStepperRPM">0</b></div>
+          <input type="range" id="sStepperRPM" min="0" max="1200" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="lab"><span>速度倍率</span><b id="vSpeed">100 %</b></div>
+          <input type="range" id="sSpeed" min="0" max="100" value="100">
+        </div>
+
+        <div class="keys-help">
+          <h4>快捷键说明</h4>
+          <div class="kh"><kbd>W</kbd>上升</div>
+          <div class="kh"><kbd>S</kbd>下降</div>
+          <div class="kh"><kbd>A</kbd>逆时针</div>
+          <div class="kh"><kbd>D</kbd>顺时针</div>
+          <div class="kh"><kbd>Space</kbd>开始 / 停止录制</div>
+          <div class="kh"><kbd>P</kbd>播放 / 暂停</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CAPTURE: MIDDLE ===== -->
+    <section class="col col-mid" data-pane="capture" style="display:none">
+      <div class="card">
+        <div class="card-title">实时预览</div>
+        <div class="preview-grid">
+          <div class="preview broken" id="pvRGB">
+            <span class="tag">RGB 预览</span>
+            <div class="tools">
+              <button title="截图"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+              <button title="全屏"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+            </div>
+            <div class="ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.5"/></svg><span style="font-size:10px">RGB 未连接</span></div>
+            <div class="vidrec" id="vidRecRGB"><span class="rd"></span><b>REC</b><i class="tm mono" id="vidRecTimeRGB">00:00:00</i></div>
+          </div>
+          <div class="preview broken" id="pvIR">
+            <span class="tag">IR 预览</span>
+            <div class="tools">
+              <button title="截图"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+              <button title="全屏"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+            </div>
+            <div class="ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.5"/></svg><span style="font-size:10px">IR 未连接</span></div>
+            <div class="vidrec" id="vidRecIR"><span class="rd"></span><b>REC</b><i class="tm mono" id="vidRecTimeIR">00:00:00</i></div>
+          </div>
+        </div>
+        <div class="vidrec-bar">
+          <button class="vidrec-btn" id="vidRecToggle" title="同步录制 RGB / IR 双摄视频"><span class="rd"></span><span id="vidRecTxt">录制视频</span></button>
+          <span class="vidrec-note" id="vidRecNote">点击后 RGB / IR 双摄同步录制</span>
+        </div>
+      </div>
+
+      <div class="card stretch">
+        <div class="orbit-head">
+          <div class="t">轨道与运动状态</div>
+        </div>
+        <div class="orbit-body">
+          <div class="stage">
+            <div class="motion-state" id="motionState">
+              <div class="ms-axis">
+                <span class="ms-label">上下</span>
+                <div class="ms-arrows">
+                  <span class="ms-arrow up" id="msUp">↑</span>
+                  <span class="ms-arrow down" id="msDown">↓</span>
+                </div>
+                <span class="ms-value mono" id="msDCPWM">PWM: 0</span>
+              </div>
+              <div class="ms-axis">
+                <span class="ms-label">左右</span>
+                <div class="ms-arrows">
+                  <span class="ms-arrow ccw" id="msCCW">↺</span>
+                  <span class="ms-arrow cw" id="msCW">↻</span>
+                </div>
+                <span class="ms-value mono" id="msStepperRPM">RPM: 0</span>
+              </div>
+            </div>
+            <svg id="orbitSvg" viewBox="0 25 450 210" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <radialGradient id="platG" cx="50%" cy="38%" r="72%">
+                  <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e6ebf2"/>
+                </radialGradient>
+                <linearGradient id="platSide" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#d6dce6"/><stop offset="100%" stop-color="#c4cdda"/>
+                </linearGradient>
+              </defs>
+              <ellipse id="groundShadow" cx="225" cy="193" rx="96" ry="15" fill="rgba(40,55,90,.08)"/>
+              <ellipse id="orbitRing" cx="225" cy="125" rx="190" ry="62" fill="none" stroke="#e2e7ef" stroke-width="3.5"/>
+              <path id="trackArc" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" opacity=".85"/>
+              <g id="sampleArcs" stroke="#7aa2f7" stroke-width="5" stroke-linecap="round"></g>
+              <polygon id="dirArrow" points="0,-5 10,0 0,5" fill="#2563eb"/>
+              <ellipse id="platSideE" cx="225" cy="189" rx="66" ry="15" fill="url(#platSide)"/>
+              <rect id="platBody" x="159" y="175" width="132" height="14" fill="url(#platSide)"/>
+              <ellipse id="platTop" cx="225" cy="175" rx="66" ry="15" fill="url(#platG)" stroke="#d6dce6" stroke-width="1"/>
+              <ellipse cx="225" cy="176" rx="27" ry="5" fill="rgba(40,55,90,.12)"/>
+              <g id="targetObj">
+                <!-- 3D cube representing target object -->
+                <polygon points="209,108 225,100 241,108 225,116" fill="#d6e0f0" stroke="#a0b4d0" stroke-width="1"/>
+                <polygon points="209,108 209,128 225,136 225,116" fill="#c0cee4" stroke="#a0b4d0" stroke-width="1"/>
+                <polygon points="241,108 241,128 225,136 225,116" fill="#b0c0d8" stroke="#a0b4d0" stroke-width="1"/>
+                <polygon points="209,128 225,136 241,128 225,120" fill="#a0b4cc" stroke="#a0b4d0" stroke-width=".8"/>
+              </g>
+              <line id="topCamLine" x1="225" y1="60" x2="225" y2="90" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="3 4" opacity=".65"/>
+              <g id="topCam" transform="translate(225,52)">
+                <g stroke="#2563eb" stroke-width="2" stroke-linecap="round">
+                  <line x1="0" y1="-15" x2="0" y2="-22"/>
+                  <line x1="-7" y1="-13" x2="-12" y2="-19"/>
+                  <line x1="7" y1="-13" x2="12" y2="-19"/>
+                </g>
+                <rect x="-12" y="-10" width="24" height="17" rx="4.5" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+                <circle cx="0" cy="-1.5" r="3.6" fill="#fff"/>
+              </g>
+              <g id="camMarker">
+                <circle cx="0" cy="13" r="3.2" fill="#2563eb"/>
+                <rect x="-11" y="-9" width="22" height="16" rx="4" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+                <circle cx="0" cy="-1" r="3.4" fill="#fff"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">录制控制</div>
+        <div class="rec-grid">
+          <button class="rec-btn start" id="recStart"><span class="rdot"></span><span id="recStartTxt">开始录制（Space）</span></button>
+          <button class="rec-btn stop" id="recStop"><span class="sq"></span>停止录制</button>
+          <div class="rec-cell"><span class="k">已录制时长</span><span class="v mono" id="recTime">00:00:00</span></div>
+          <div class="rec-cell"><span class="k">帧数</span><span class="v mono" id="recFrames">0</span></div>
+          <div class="rec-cell"><span class="k">预计帧数</span><span class="v mono" id="recEst">--</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CAPTURE: RIGHT ===== -->
+    <section class="col col-right" data-pane="capture" style="display:none">
+      <div class="card stretch">
+        <div class="card-title">轨迹管理</div>
+        <div class="sub-h" style="margin-top:-2px">当前轨迹</div>
+        <div class="field-row">
+          <select id="curTrajSel"></select>
+          <button class="save" id="loadTraj">加载轨迹</button>
+        </div>
+        <div class="sub-h">轨迹列表</div>
+        <div class="traj-list" id="trajList"></div>
+        <button class="traj-add" id="addTraj" title="新建轨迹"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+        <div class="sub-h">轨迹播放</div>
+        <div class="play-row">
+          <button class="play-btn play" id="playBtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg><span id="playTxt">播放（P）</span></button>
+          <button class="play-btn" id="playStopBtn"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>停止</button>
+        </div>
+        <div class="time-row"><span id="playCur">00:00:00</span><span id="playDur">00:00:20</span></div>
+        <div class="progress" id="progress"><div class="fill" id="progFill"></div><div class="knob" id="progKnob"></div></div>
+      </div>
+
+      <div class="card tips">
+        <div class="card-title">提示</div>
+        <ul>
+          <li>使用 <b class="hk">W</b> / <b class="hk">S</b> 调整相机高度</li>
+          <li>使用 <b class="hk">A</b> / <b class="hk">D</b> 控制相机沿轨道旋转</li>
+          <li>拖动速度滑块调整运动速度</li>
+          <li>点击开始录制或按 <b class="hk">Space</b> 开始记录轨迹</li>
+        </ul>
+      </div>
+    </section>
+    <!-- ===== RECON: LEFT ===== -->
+    <section class="col recon-col-left" data-pane="recon" style="display:none">
+      <div class="card">
+        <div class="card-title">输入数据</div>
+        <div class="input-path">
+          <label>数据集根目录 <span style="color:var(--ink-3);font-weight:400;font-size:10px">(包含 imgs/ 和 colmap/)</span></label>
+          <div class="input-row">
+            <input type="text" id="reconImageDir" placeholder="D:/Project/dataset">
+            <button class="btn" onclick="reconPickDir('reconImageDir')" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="input-path" style="display:none">
+          <input type="hidden" id="reconColmapPath">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">数据概览</div>
+        <div class="data-overview">
+          <div class="data-item">
+            <span class="label">图像数量</span>
+            <span class="value" id="reconImgCount">360</span>
+          </div>
+          <div class="data-item">
+            <span class="label">点数量</span>
+            <span class="value" id="reconPointCount">1,234,567</span>
+          </div>
+          <div class="data-item">
+            <span class="label">相机数量</span>
+            <span class="value" id="reconCamCount">360</span>
+          </div>
+          <div class="data-item">
+            <span class="label">分辨率</span>
+            <span class="value" id="reconResolution">1920 × 1080</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">训练控制</div>
+        <div class="train-mode-group">
+          <button class="train-mode-btn active" data-mode="rgb" onclick="setTrainMode('rgb')">RGB 先行</button>
+          <button class="train-mode-btn" data-mode="ir" onclick="setTrainMode('ir')">IR 辅助形状</button>
+        </div>
+        <div class="form-row">
+          <label>总训练步数</label>
+          <input type="number" id="reconTotalSteps" value="30000" min="1000" max="100000">
+        </div>
+        <div class="train-progress">
+          <div class="progress-info">
+            <span class="label">当前步数</span>
+            <span class="value"><span id="reconCurrentStep">0</span> / <span id="reconMaxStep">30000</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="reconProgressFill" style="width: 0%"></div>
+          </div>
+          <div class="progress-percent" id="reconProgressPct">0%</div>
+        </div>
+        <div class="train-controls">
+          <button class="btn-p" id="reconStartBtn" onclick="startReconTraining()" style="flex:1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            开始训练
+          </button>
+          <button class="btn-stop" id="reconStopBtn" onclick="stopReconTraining()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            停止训练
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">实时指标</div>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="label">PSNR (↑)</span>
+            <span class="value green" id="reconPSNR">—</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">SSIM (↑)</span>
+            <span class="value green" id="reconSSIM">—</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">LPIPS (↓)</span>
+            <span class="value blue" id="reconLPIPS">—</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">渲染速度</span>
+            <span class="value" id="reconRenderSpeed">—</span>
+          </div>
+        </div>
+        <div class="metric-extra">
+          <div class="row">
+            <span class="label">剩余时间</span>
+            <span class="value" id="reconTimeLeft">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stretch">
+        <div class="card-title">日志输出</div>
+        <div class="log-box" id="reconLogContainer">
+          <div class="log-placeholder" style="color:var(--ink-3);font-size:11px;padding:8px">日志输出区域</div>
+        </div>
+        <div class="log-actions" style="display:flex;gap:6px;margin-top:6px">
+          <button class="btn" onclick="clearReconLog()">清空日志</button>
+          <button class="btn" onclick="downloadReconLog()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            保存日志
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RECON: MIDDLE ===== -->
+    <section class="col recon-col-mid" data-pane="recon" style="display:none">
+      <div class="card">
+        <div class="preview-header">
+          <div class="t">实时预览</div>
+          <div class="preview-tools">
+            <button title="重置视角" id="reconResetViewBtn" onclick="resetPLYView()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+            <button title="截图" id="reconScreenshotBtn" onclick="capturePLYScreenshot()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="viewer-3d-container" id="reconViewerContainer">
+          <div class="viewer-3d-placeholder" id="reconViewerPlaceholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            <span>3DGS 模型预览</span>
+            <span style="font-size:10px">拖入 .ply 文件或训练后自动加载</span>
+          </div>
+          <canvas id="reconViewerCanvas" style="display:none"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="viewpoint-header">
+          <div class="t">视角列表 (<span id="reconViewpointCount">0</span>)</div>
+          <button class="btn" onclick="scanImageDir()" title="扫描图像目录">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            扫描
+          </button>
+        </div>
+        <div class="viewpoint-grid" id="reconViewpointGrid">
+          <div class="viewpoint-item" style="grid-column:1/-1;pointer-events:none">
+            <span style="color:var(--ink-3);font-size:11px;text-align:center;padding:12px;display:block">选择图像目录后点击扫描</span>
+          </div>
+        </div>
+        <div class="viewpoint-pagination" id="reconViewpointPagination" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- ===== RECON: RIGHT ===== -->
+    <section class="col recon-col-right" data-pane="recon" style="display:none">
+      <div class="card settings-card">
+        <div class="card-title">
+          <span>训练设置</span>
+          <button class="save-btn" onclick="saveReconConfig()" title="保存配置">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            保存配置
+          </button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">训练 <span class="sec-badge">Training</span></div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>训练步数</label>
+              <input type="range" id="reconTrainSteps" min="1000" max="100000" value="30000" step="1000">
+              <input type="number" id="reconTrainStepsVal" value="30000" min="1000" max="100000">
+              <span class="unit">steps</span>
+            </div>
+            <div class="setting-row">
+              <label>Max Splats Cap</label>
+              <input type="range" id="reconMaxSplats" min="100000" max="10000000" value="10000000" step="100000">
+              <input type="number" id="reconMaxSplatsVal" value="10000000" min="100000" max="10000000">
+              <span class="unit">10000k</span>
+            </div>
+
+            <div class="settings-section-header collapsed sub">Learning rates</div>
+            <div class="sec-body" style="display:none">
+              <div class="setting-row">
+                <label>Mean LR start</label>
+                <input type="number" id="reconLRMean" value="0.000020" step="0.000001" style="max-width:90px">
+              </div>
+              <div class="setting-row">
+                <label>Mean LR end</label>
+                <input type="number" id="reconLRMeanEnd" value="0.00000020" step="0.00000001" style="max-width:90px">
+              </div>
+              <div class="setting-row">
+                <label>Mean noise weight</label>
+                <input type="number" id="reconMeanNoiseWeight" value="50" step="1" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>SH coefficients</label>
+                <input type="number" id="reconLRCoeffsDC" value="0.0020" step="0.0001" style="max-width:80px">
+              </div>
+              <div class="setting-row">
+                <label>SH division (higher orders)</label>
+                <input type="number" id="reconLRShScale" value="10" step="1" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>Opacity</label>
+                <input type="number" id="reconLROpac" value="0.012" step="0.001" style="max-width:80px">
+              </div>
+              <div class="setting-row">
+                <label>Scale</label>
+                <input type="number" id="reconLRScale" value="0.0050" step="0.0001" style="max-width:80px">
+              </div>
+              <div class="setting-row">
+                <label>Rotation</label>
+                <input type="number" id="reconLRRotation" value="0.0020" step="0.0001" style="max-width:80px">
+              </div>
+            </div>
+
+            <div class="settings-section-header collapsed sub">Growth & refinement</div>
+            <div class="sec-body" style="display:none">
+              <div class="setting-row">
+                <label>Refinement frequency</label>
+                <input type="number" id="reconRefineEvery" value="200" step="50" style="max-width:80px">
+                <span class="unit">iters</span>
+              </div>
+              <div class="setting-row">
+                <label>Growth threshold</label>
+                <input type="number" id="reconGrowthGradThreshold" value="0.0025" step="0.0001" style="max-width:80px">
+              </div>
+              <div class="setting-row">
+                <label>Growth selection fraction</label>
+                <input type="number" id="reconGrowthSelectFraction" value="0.25" step="0.05" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>Growth stop iteration</label>
+                <input type="number" id="reconGrowthStopIter" value="15000" step="500" style="max-width:80px">
+              </div>
+              <div class="setting-row">
+                <label>Split at screen size</label>
+                <input type="number" id="reconSplitAtScreenSize" value="0.50" step="0.05" style="max-width:70px">
+                <span class="unit">0=disables</span>
+              </div>
+            </div>
+
+            <div class="settings-section-header collapsed sub">Losses</div>
+            <div class="sec-body" style="display:none">
+              <div class="setting-row">
+                <label>SSIM weight</label>
+                <input type="number" id="reconSSIMWeight" value="0.20" step="0.01" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>Splat opacity decay</label>
+                <input type="number" id="reconOpacDecay" value="0.004" step="0.001" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>Alpha match weight</label>
+                <input type="number" id="reconMatchAlphaWeight" value="0.10" step="0.01" style="max-width:70px">
+              </div>
+            </div>
+
+            <div class="settings-section-header collapsed sub">Background</div>
+            <div class="sec-body" style="display:none">
+              <div class="setting-row">
+                <label>Color</label>
+                <input type="color" id="reconBgColor" value="#000000" style="width:32px;height:26px;padding:2px">
+              </div>
+              <div class="setting-row">
+                <label>Noise strength</label>
+                <input type="number" id="reconBgNoiseStrength" value="0.10" step="0.01" style="max-width:70px">
+              </div>
+              <div class="setting-row">
+                <label>LOD levels</label>
+                <input type="number" id="reconLodLevels" value="0" min="0" max="5" style="max-width:60px">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">Infrared (IR)</div>
+          <div class="sec-body">
+            <div class="ir-sub-settings" style="margin-top:0">
+              <div class="ir-sub-header">
+                <input type="checkbox" id="reconEnableIR" checked>
+                <label for="reconEnableIR">启用 IR 辅助训练</label>
+              </div>
+              <div class="setting-row">
+                <label>IR 迭代步数</label>
+                <input type="range" id="reconIRSteps" min="1000" max="20000" value="5000" step="500">
+                <input type="number" id="reconIRStepsVal" value="5000" min="1000" max="20000">
+              </div>
+              <div class="setting-row">
+                <label>IR 学习率</label>
+                <input type="range" id="reconIRLR" min="0.001" max="0.1" value="0.01" step="0.001">
+                <input type="number" id="reconIRLRVal" value="0.010" min="0.001" max="0.1" step="0.001">
+              </div>
+              <div class="setting-row">
+                <label>IR 精化间隔</label>
+                <input type="range" id="reconIRRefine" min="100" max="5000" value="500" step="100">
+                <input type="number" id="reconIRRefineVal" value="0" min="0" max="5000">
+              </div>
+              <div class="ir-input-row">
+                <label>IR 相机平移偏移 (m)</label>
+              </div>
+              <div class="ir-coord-row">
+                <div class="ir-coord-item">
+                  <span class="axis">X</span>
+                  <input type="number" id="reconIRTransX" value="0.00" step="0.01">
+                </div>
+                <div class="ir-coord-item">
+                  <span class="axis">Y</span>
+                  <input type="number" id="reconIRTransY" value="0.00" step="0.01">
+                </div>
+                <div class="ir-coord-item">
+                  <span class="axis">Z</span>
+                  <input type="number" id="reconIRTransZ" value="0.00" step="0.01">
+                </div>
+              </div>
+              <div class="ir-input-row">
+                <label>IR 图像子目录</label>
+                <input type="text" id="reconIRSubdir" value="ir">
+              </div>
+              <div class="ir-input-row">
+                <label>IR 相机旋转偏移 (四元数)</label>
+              </div>
+              <div class="ir-coord-row">
+                <div class="ir-coord-item">
+                  <span class="axis">W</span>
+                  <input type="number" id="reconIRQuatW" value="1.00" step="0.01">
+                </div>
+                <div class="ir-coord-item">
+                  <span class="axis">X</span>
+                  <input type="number" id="reconIRQuatX" value="0.00" step="0.01">
+                </div>
+                <div class="ir-coord-item">
+                  <span class="axis">Y</span>
+                  <input type="number" id="reconIRQuatY" value="0.00" step="0.01">
+                </div>
+                <div class="ir-coord-item">
+                  <span class="axis">Z</span>
+                  <input type="number" id="reconIRQuatZ" value="0.00" step="0.01">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">模型 <span class="sec-badge">Model</span></div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>球谐阶数</label>
+              <input type="range" id="reconSHDegree" min="1" max="5" value="3" step="1">
+              <input type="number" id="reconSHDegreeVal" value="3" min="1" max="5">
+            </div>
+            <div class="setting-row">
+              <label>渲染模式</label>
+              <select id="reconRenderMode" style="flex:1;max-width:120px">
+                <option value="default">Default</option>
+                <option value="mip">MIP</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">数据集 <span class="sec-badge">Dataset</span></div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>最大图像分辨率</label>
+              <input type="range" id="reconMaxResolution" min="256" max="4096" value="1920" step="64">
+              <input type="number" id="reconMaxResolutionVal" value="1920" min="256" max="4096">
+            </div>
+            <div class="setting-row">
+              <label>最大帧数</label>
+              <input type="number" id="reconMaxFrames" value="0" min="0" max="100000" style="max-width:80px">
+              <span class="unit">0=不限</span>
+            </div>
+            <div class="setting-row">
+              <label>评估拆分间隔</label>
+              <input type="number" id="reconEvalSplitEvery" value="0" min="0" max="1000" style="max-width:80px">
+              <span class="unit">0=不拆分</span>
+            </div>
+            <div class="setting-row">
+              <label>子采样帧</label>
+              <input type="number" id="reconSubsampleFrames" value="0" min="0" max="100" style="max-width:80px">
+              <span class="unit">0=不采样</span>
+            </div>
+            <div class="setting-row">
+              <label>子采样点</label>
+              <input type="number" id="reconSubsamplePoints" value="0" min="0" max="100" style="max-width:80px">
+              <span class="unit">0=不采样</span>
+            </div>
+            <div class="setting-row">
+              <label>Alpha 模式</label>
+              <select id="reconAlphaMode" style="flex:1;max-width:120px">
+                <option value="">无</option>
+                <option value="masked">Masked</option>
+                <option value="transparent">Transparent</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">Process</div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>随机种子</label>
+              <input type="number" id="reconSeed" value="42" min="0" style="max-width:70px">
+            </div>
+            <div class="setting-row">
+              <label>起始迭代</label>
+              <input type="number" id="reconStartIter" value="0" min="0" style="max-width:80px">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">Export</div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>导出间隔</label>
+              <input type="number" id="reconExportEvery" value="5000" min="1000" max="100000" step="1000" style="max-width:80px">
+              <span class="unit">steps</span>
+            </div>
+            <div class="setting-row">
+              <label>导出路径</label>
+              <input type="text" id="reconExportPath" placeholder="./{dataset}_exports/" style="flex:1">
+            </div>
+            <div class="setting-row">
+              <label>导出文件名</label>
+              <input type="text" id="reconExportName" value="export_{iter}.ply" style="flex:1">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">Evaluate</div>
+          <div class="sec-body">
+            <div class="setting-row">
+              <label>评估间隔</label>
+              <input type="number" id="reconEvalEvery" value="1000" min="0" step="500" style="max-width:80px">
+              <span class="unit">steps</span>
+            </div>
+            <div class="setting-row checkbox-row">
+              <input type="checkbox" id="reconEvalSaveDisk">
+              <label for="reconEvalSaveDisk">保存评估图像到磁盘</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header expanded">Rerun.io</div>
+          <div class="sec-body">
+            <div class="setting-row checkbox-row">
+              <input type="checkbox" id="reconEnableRerun">
+              <label for="reconEnableRerun">启用 Rerun 日志</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar" id="statusbar">
+    <div class="left"><span class="dot live" id="barDot"></span><span id="barStatus">就绪</span></div>
+    <div class="right">
+      <div class="grp"><span class="lbl">CPU</span><span class="val mono" id="barCPU">--%</span></div>
+      <div class="grp"><span class="lbl">GPU</span><span class="val mono" id="barGPU">--%</span></div>
+      <div class="grp"><span class="lbl">显存</span><span class="val mono" id="barVRAM">--</span></div>
+      <div class="grp"><span class="lbl">内存</span><span class="val mono" id="barMem">-- / -- GB</span></div>
+    </div>
+  </footer>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="traj-menu" id="trajMenu">
+  <button data-act="edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>重命名</button>
+  <button data-act="export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>导出</button>
+  <button data-act="del" class="danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>删除</button>
+  <button data-act="import"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导入</button>
+</div>
+
+<div id="iosDialog" style="display:none">
+  <div class="dialog-overlay" onclick="closeDialog(false)"></div>
+  <div class="dialog-box">
+    <div class="dialog-title" id="dialogTitle">提示</div>
+    <div class="dialog-msg" id="dialogMsg"></div>
+    <div class="dialog-sep"></div>
+    <div class="dialog-btns two">
+      <button class="dialog-cancel" onclick="closeDialog(false)">取消</button>
+      <button class="dialog-confirm" onclick="closeDialog(true)">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 设置窗口 ===== -->
+<div class="settings-overlay" id="settingsOverlay" style="display:none">
+  <div class="settings-window">
+    <div class="settings-header">
+      <div class="t">设置</div>
+      <button class="close" id="settingsClose" title="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="settings-body">
+      <!-- 左导航 -->
+      <div class="settings-nav">
+        <button class="nav-item active" data-panel="basic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></svg>
+          基础设置
+        </button>
+        <button class="nav-item" data-panel="debug">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          调试设置
+        </button>
+        <button class="nav-item" data-panel="about">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          关于
+        </button>
+      </div>
+
+      <!-- 右内容 -->
+      <div class="settings-content">
+        <!-- 基础设置 -->
+        <div class="set-panel active" data-panel="basic">
+          <div class="set-section-title">基础设置 <span class="badge">Basic</span></div>
+          <div class="set-group">
+            <div class="set-row">
+              <label>默认输出目录</label>
+              <div class="input-row">
+                <input type="text" id="setDefaultOutdir" placeholder="如 D:/Project/outdir">
+                <button class="btn" onclick="settingsPickDir('setDefaultOutdir')" title="浏览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </button>
+              </div>
+              <span class="hint">预处理 / 训练输出的根目录</span>
+            </div>
+            <div class="set-row">
+              <label>默认图像目录</label>
+              <div class="input-row">
+                <input type="text" id="setDefaultImgs" placeholder="如 D:/Project/outdir/imgs">
+                <button class="btn" onclick="settingsPickDir('setDefaultImgs')" title="浏览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </button>
+              </div>
+              <span class="hint">抽帧图像输出目录，通常为 输出目录/imgs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 调试设置 -->
+        <div class="set-panel" data-panel="debug">
+          <div class="set-section-title">调试设置 <span class="badge">Debug</span></div>
+
+          <div class="set-group">
+            <div class="set-row">
+              <label>CEF 传参调试</label>
+              <input type="text" id="setDebugReq" placeholder="如：dialog pickDir 选择目录">
+              <span class="hint">输入 CEF 请求字符串。2 个参数时第 2 个 Base64；≥3 个参数时第 3 个及之后 Base64（纯数字除外）</span>
+            </div>
+            <div class="set-row" style="flex-direction:row;align-items:center;gap:8px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px">
+                <input type="checkbox" id="setDebugB64" checked style="accent-color:var(--blue);width:14px;height:14px;cursor:pointer">
+                自动 Base64 编码字符串参数
+              </label>
+            </div>
+            <div class="debug-send-row">
+              <button class="btn-p" style="flex:1;height:30px;font-size:12px" onclick="settingsSendDebug()">发送请求</button>
+              <button class="btn" onclick="$id('setDebugResult').style.display='none'" style="height:30px">清空结果</button>
+            </div>
+            <div class="debug-result" id="setDebugResult"></div>
+          </div>
+
+          <div class="set-group">
+            <div class="set-section-title" style="margin-bottom:10px;border-bottom:none;padding-bottom:0">页面操作</div>
+            <div class="debug-actions">
+              <button class="dact" onclick="settingsOpenDevTools()">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4h8M8 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2"/><path d="M12 16v.01"/></svg></span>
+                <span><b>打开 DevTools</b><span>打开 Chromium 开发者工具</span></span>
+              </button>
+              <button class="dact" onclick="settingsOpenChromeSettings()">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                <span><b>Chrome 设置</b><span>打开 Chromium 内置设置页</span></span>
+              </button>
+              <button class="dact" onclick="settingsReload()">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span>
+                <span><b>重载页面</b><span>重新加载当前前端页面</span></span>
+              </button>
+              <button class="dact danger" onclick="settingsClearData()">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>
+                <span><b>清空页面数据</b><span>清除本地缓存与页面数据并重载</span></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 关于 -->
+        <div class="set-panel" data-panel="about">
+          <div class="about-hero">
+            <div class="about-logo"><img src="icon.png" alt=""></div>
+            <div><b id="aboutName"></b><span>基于 CEF 的全链路重建控制台</span></div>
+          </div>
+          <div class="about-desc" id="aboutDesc"></div>
+          <div class="about-list">
+            <div class="about-item"><span class="k">软件版本</span><span class="v" id="aboutVersion"></span></div>
+            <div class="about-item"><span class="k">CEF 内核版本</span><span class="v" id="aboutCef"></span></div>
+            <div class="about-item"><span class="k">运行环境</span><span class="v" id="aboutEnv"></span></div>
+            <div class="about-item"><span class="k">程序目录</span><span class="v" id="aboutExe">--</span></div>
+            <div class="about-item"><span class="k">User-Agent</span><span class="v copy" id="aboutUa" onclick="settingsCopy(this)" title="点击复制"></span></div>
+          </div>
+          <div class="about-footer"><span class="dot"></span>该软件仅供内部测量与重建任务使用</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="btn" onclick="closeSettings()">取消</button>
+      <button class="btn btn-p" onclick="settingsSave()">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<script src="scripts/shared/dom.js"></script>
+<script src="scripts/shared/log.js"></script>
+<script src="scripts/shared/status.js"></script>
+<script src="scripts/cef/shared.js"></script>
+<script src="scripts/cef/base.js"></script>
+<script src="scripts/cef/window.js"></script>
+<script src="scripts/cef/dialog.js"></script>
+<script src="scripts/cef/file.js"></script>
+<script src="scripts/cef/preproc.js"></script>
+<script src="scripts/cef/recon.js"></script>
+<script src="scripts/motor/api.js"></script>
+<script src="scripts/motor/connect.js"></script>
+<script src="scripts/motor/control.js"></script>
+<script src="scripts/capture/state.js"></script>
+<script src="scripts/capture/devices.js"></script>
+<script src="scripts/capture/camera.js"></script>
+<script src="scripts/capture/video-record.js"></script>
+<script src="scripts/capture/motion.js"></script>
+<script src="scripts/capture/recording.js"></script>
+<script src="scripts/capture/trajectory.js"></script>
+<script src="scripts/capture/playback.js"></script>
+<script src="scripts/capture/init.js"></script>
+<script src="scripts/preproc/core.js"></script>
+<script src="scripts/preproc/pipeline.js"></script>
+<script src="scripts/preproc/ui.js"></script>
+<script src="scripts/preproc/state.js"></script>
+<script src="scripts/brush/args.js"></script>
+<script src="scripts/brush/parse.js"></script>
+<script src="scripts/recon/core.js"></script>
+<script src="scripts/recon/log.js"></script>
+<script src="scripts/recon/config.js"></script>
+<script src="scripts/recon/viewpoints.js"></script>
+<script src="scripts/recon/ply-viewer.js"></script>
+<script src="scripts/components/dialog.js"></script>
+<script src="scripts/components/settings.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>
