@@ -43,10 +43,20 @@ Frontend/
 │   │   ├── config.js              # 配置存储/加载
 │   │   ├── viewpoints.js          # 视角列表扫描与渲染
 │   │   └── ply-viewer.js          # PLY 预览（Babylon.js）、拖入、截图、自启动
+│   ├── evaluate/                   # 评估验证系统（3DGSVerify 离线评估功能前端化）
+│   │   ├── metrics.js             # EvalMetrics — PSNR/SSIM/MS-SSIM/RMSE/MAE 纯 JS 引擎（与 evaluate.py 公式一致）
+│   │   ├── io.js                  # EvalIO — 图片加载(/raw/协议)、目录配对、演示数据生成
+│   │   ├── report.js              # EvalReport — 评估报告渲染（汇总表/排名/逐图明细/导出）
+│   │   └── core.js                # Evaluate — 状态机、评估流程、进度 UI、结果写出
 │   ├── components/
 │   │   ├── dialog.js              # 通用对话框（前端 UI 对话框，非系统对话框）
 │   │   └── settings.js            # 设置窗口（基础/调试/关于）
 │   └── main.js                    # Tab 导航 + 系统监控 + 初始化
+├── evaluate/                       # 3DGSVerify 参考实现（离线评估工具，未部署）
+│   └── python/
+│       ├── evaluate.py            # 原始 Python 评估工具（PSNR/SSIM/MS-SSIM/RMSE/MAE/LPIPS）
+│       ├── requirements.txt
+│       └── test_evaluate.py
 ├── styles/                         # 样式文件
 │   ├── app.css                    # 全局样式、布局、状态栏
 │   ├── pages/
@@ -94,7 +104,10 @@ brush/parse.js
 <!-- 7. 主重建系统 — 依赖 cef + brush + shared -->
 recon/core.js → log.js → config.js → viewpoints.js → ply-viewer.js
 
-<!-- 8. 其他 -->
+<!-- 8. 评估验证系统 — 依赖 shared + cef -->
+evaluate/metrics.js → io.js → report.js → core.js
+
+<!-- 9. 其他 -->
 components/dialog.js
 main.js             (最后加载，负责 Tab 切换 + 系统监控)
 ```

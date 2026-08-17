@@ -9,6 +9,7 @@
 | **拍摄系统** | 电机控制（步进/直流）、摄像头预览（RGB/IR）、轨迹录制回放、轨道可视化 |
 | **预处理系统** | 视频切帧（支持上下融合/独立视频两种输入）、COLMAP 特征提取/匹配/稀疏重建 |
 | **主重建系统** | brush.exe 3DGS 训练配置与启停、训练日志实时解析、PLY 模型预览（Babylon.js）、视角浏览 |
+| **评估验证系统** | 3DGSVerify 离线量化评估前端化：GT vs 渲染图逐张对比，PSNR/SSIM/MS-SSIM/RMSE/MAE，页面报告 + summary.json/per_image.csv/summary.txt |
 
 
 ## 开发指引

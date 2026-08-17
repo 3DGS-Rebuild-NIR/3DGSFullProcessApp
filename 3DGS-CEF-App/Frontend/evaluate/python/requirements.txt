@@ -1,0 +1,10 @@
+# 必需依赖
+numpy>=1.21
+Pillow>=9.0
+
+# 可选：加速 SSIM/MS-SSIM（无则回退纯 numpy，慢一些）
+# scipy>=1.9
+
+# 可选：启用 LPIPS 指标
+# torch>=1.13
+# lpips>=0.1.4

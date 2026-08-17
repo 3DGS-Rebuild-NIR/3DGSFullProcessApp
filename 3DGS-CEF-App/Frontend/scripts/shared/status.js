@@ -23,7 +23,8 @@ function _activeTabName() {
 function refreshGlobalStatus() {
   var name = _activeTabName();
   if (name === 'capture') { refreshCaptureStatus(); return; }
-  if (name === 'preproc') { refreshPreprocStatus(); }
+  if (name === 'preproc') { refreshPreprocStatus(); return; }
+  if (name === 'evaluate') { refreshEvaluateStatus(); return; }
 }
 
 function refreshCaptureStatus() {

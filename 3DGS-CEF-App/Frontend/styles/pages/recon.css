@@ -895,11 +895,13 @@
 }
 
 /* ===== Log output ===== */
+.recon-col-left .card.stretch{overflow:hidden;min-height:0}
 #reconLogContainer.log-box {
   flex: 1; min-height: 0;
   background: #0f172a; border-radius: var(--r-sm); padding: 8px 10px;
   overflow-y: auto; font-family: 'Consolas','Courier New',var(--font-mono);
   font-size: 10px; line-height: 1.6;
+  word-break: break-all; overflow-wrap: anywhere;
 }
 #reconLogContainer .e { color: #94a3b8; margin-bottom: 1px }
 #reconLogContainer .e.s { color: #34d399 }

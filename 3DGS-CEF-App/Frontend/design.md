@@ -34,7 +34,7 @@
 - 界面运行于 **CEF（Chromium Embedded Framework）内嵌窗口**，不是独立浏览器页面。
 - 这一前提直接决定了外壳约束（见 §2 与 §10 第 1、2 条），**所有布局假设都必须建立在"无浏览器外壳、无系统标题栏可依赖"之上**。
 - 目标 DPI 覆盖 **1x / 1.25x / 1.5x / 2x**；2x 下截图视觉上等同放大，规范必须保证各倍率下三栏不变形。
-- 多文件交付：`index.html` + `styles/` + `scripts/` + `viewer/`，**无构建步骤**；由宿主经自定义协议 **`app://localhost`** 托管（不是 `file://`，否则 ES Module 无法加载）。外部仅依赖 CDN（Babylon.js、Google Fonts `Sora` + `JetBrains Mono`）等。
+- 多文件交付：`index.html` + `styles/` + `scripts/` + `viewer/`，**无构建步骤**；由宿主经自定义协议 **`app://localhost`** 托管（不是 `file://`，否则 ES Module 无法加载）。字体使用**系统本地字体**（无 Google Fonts / 网络依赖），外部仅依赖 CDN（Babylon.js）等。
 
 ---
 
@@ -105,12 +105,12 @@ background:
 ### 4.1 字体栈
 
 ```css
---font-ui:   "Sora","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
---font-mono: "JetBrains Mono","SFMono-Regular",ui-monospace,"Cascadia Code",monospace;
+--font-ui:   "PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",system-ui,sans-serif;
+--font-mono: "Cascadia Code","Consolas","SF Mono",ui-monospace,"Microsoft YaHei",monospace;
 ```
 
-- **UI 字体**：`Sora`（西文 display/正文）+ 系统中文字体。`Sora` 几何感强、字重齐全，契合仪器调性。
-- **等宽字体**：`JetBrains Mono`，**强制**用于一切"读数"——高度/角度/坐标、时间码、帧数、COM 口、分辨率、存储路径、快捷键字母。
+- **UI 字体**：系统本地字体（Windows：Microsoft YaHei + Segoe UI；macOS：PingFang SC）。不再依赖 Google Fonts，离线可用。
+- **等宽字体**：系统本地等宽字体（Windows：Cascadia Code / Consolas），**强制**用于一切"读数"——高度/角度/坐标、时间码、帧数、COM 口、分辨率、存储路径、快捷键字母。
 
 ### 4.2 字号 / 字重层级
 

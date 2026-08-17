@@ -1,0 +1,173 @@
+/* ===== 评估验证板块（3DGSVerify 离线评估） ===== */
+[data-pane="evaluate"] { display: none; }
+.evaluate-col-left,
+.evaluate-col-mid,
+.evaluate-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.evaluate-col-left::-webkit-scrollbar,
+.evaluate-col-mid::-webkit-scrollbar,
+.evaluate-col-right::-webkit-scrollbar { width: 0; }
+
+/* ===== 指标选择（chip） ===== */
+.eval-metric-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.eval-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 9px;
+  border: 1px solid var(--line); border-radius: 20px;
+  background: var(--panel-2); color: var(--ink-2);
+  font-size: 10.5px; font-weight: 600; cursor: pointer;
+  transition: all .14s; user-select: none;
+}
+.eval-chip input { display: none; }
+.eval-chip:hover { border-color: #cdd9f6; color: var(--ink); }
+.eval-chip.on {
+  background: var(--blue-soft); border-color: #bcd2fb; color: var(--blue-ink);
+}
+.eval-chip.off { opacity: .55; cursor: not-allowed; }
+.eval-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .35; }
+.eval-chip.on .dot { opacity: 1; }
+
+/* ===== 进度 ===== */
+.eval-progress { margin-top: 2px; }
+.eval-progress-bar {
+  height: 8px; border-radius: 6px; background: var(--line);
+  overflow: hidden; position: relative;
+}
+.eval-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 6px; transition: width .25s ease;
+}
+.eval-progress-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; font-size: 11px;
+}
+.eval-progress-top .pct { font-family: var(--font-mono); font-weight: 700; color: var(--blue-ink); }
+.eval-progress-label {
+  margin-top: 7px; font-size: 10.5px; color: var(--ink-2);
+  font-family: var(--font-mono); word-break: break-all;
+  min-height: 14px;
+}
+.eval-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.eval-stat { display: flex; justify-content: space-between; font-size: 11px; }
+.eval-stat .k { color: var(--ink-3); }
+.eval-stat .v { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+
+/* ===== 报告 ===== */
+.evaluate-col-mid .card.stretch{overflow:hidden}
+#evalReport{
+  flex:1 1 auto;min-height:0;
+  overflow-y:auto;overflow-x:hidden;
+  padding-right:4px;
+}
+.eval-report { display: flex; flex-direction: column; gap: 12px; }
+
+.er-title { padding: 4px 2px 2px; }
+.er-title-main { font-size: 15px; font-weight: 800; letter-spacing: .3px; }
+.er-title-sub { font-size: 10px; color: var(--ink-3); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px; }
+
+.er-meta {
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--panel-2); padding: 8px 12px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px;
+}
+.er-meta-row { display: flex; gap: 8px; font-size: 11px; min-width: 0; }
+.er-meta-k { color: var(--ink-3); flex: none; }
+.er-meta-v { color: var(--ink); font-weight: 500; word-break: break-all; }
+
+.er-sec-title {
+  font-size: 12px; font-weight: 700; margin-top: 2px;
+  display: flex; align-items: center; gap: 7px;
+}
+.er-sec-title::before {
+  content: ""; width: 3px; height: 13px; border-radius: 2px;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+}
+
+.er-table {
+  width: 100%; border-collapse: collapse; font-size: 11px;
+  border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden;
+}
+.er-table th {
+  text-align: left; font-size: 10.5px; color: var(--ink-2); font-weight: 600;
+  background: var(--panel-2); padding: 6px 10px; border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.er-table td { padding: 5px 10px; border-bottom: 1px solid var(--line-2); }
+.er-table tr:last-child td { border-bottom: none; }
+.er-table tbody tr:hover { background: #fafcff; }
+
+.er-summary { width: 100%; }
+.er-summary td { text-align: right; font-size: 11.5px; }
+.er-summary td:first-child { text-align: left; }
+.er-metric-name { font-weight: 700; }
+.er-unit { font-size: 9.5px; color: var(--ink-3); margin-left: 5px; font-weight: 400; }
+.er-mean { font-weight: 800; }
+.er-mean.good { color: var(--green); }
+.er-mean.bad { color: var(--red); }
+
+.er-rank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.er-rank-card {
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: 8px 12px 10px; background: var(--panel-2);
+}
+.er-rank-title { font-size: 11px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+.er-rank-list { list-style: none; counter-reset: rk; }
+.er-rank-list li {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-size: 11px; padding: 2.5px 0; counter-increment: rk;
+}
+.er-rank-list li::before {
+  content: counter(rk); width: 15px; flex: none;
+  font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-3);
+  display: inline-flex; align-items: center;
+}
+.er-rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+.er-rank-val { font-weight: 700; flex: none; }
+.er-rank-val.good { color: var(--green); }
+.er-rank-val.bad { color: var(--red); }
+
+.er-notes { display: flex; flex-direction: column; gap: 5px; }
+.er-note {
+  font-size: 10.5px; padding: 6px 10px; border-radius: var(--r-sm);
+  word-break: break-all;
+}
+.er-note.warn { background: #fff7e6; border: 1px solid #f5e3bd; color: #9a6b00; }
+.er-note.info { background: var(--blue-soft); border: 1px solid #d5e4fc; color: var(--blue-ink); }
+
+/* 逐图明细 */
+.er-pitable { display: flex; flex-direction: column; gap: 8px; min-width: 0; max-width: 100%; }
+.er-table-scroll { overflow-x: auto; max-width: 100%; }
+.er-pit-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.er-pit-toolbar select { width: auto; max-width: 200px; height: 26px; font-size: 10.5px; }
+.er-pager { display: flex; align-items: center; gap: 6px; }
+.er-page-info { font-size: 10.5px; color: var(--ink-3); font-family: var(--font-mono); }
+.er-pager-btn {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--panel-2);
+  color: var(--ink-2); font-size: 13px; line-height: 1;
+}
+.er-pager-btn:hover:not(:disabled) { border-color: #cdd9f6; color: var(--ink); background: #fff; }
+.er-pager-btn:disabled { opacity: .4; cursor: not-allowed; }
+.er-perimage { width: 100%; min-width: 560px; }
+.er-perimage .er-col-name { min-width: 0; }
+.er-perimage td.er-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.er-perimage th { cursor: pointer; user-select: none; white-space: nowrap; }
+.er-perimage th:hover { color: var(--blue); }
+.er-perimage td { text-align: right; }
+.er-perimage td:first-child, .er-perimage td:nth-child(2) { text-align: left; }
+.cell-good { color: var(--green); }
+.cell-bad { color: var(--red); }
+
+.er-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* 提示卡 */
+.eval-tips ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.eval-tips li { display: flex; gap: 6px; font-size: 11px; color: var(--ink-2); line-height: 1.55; }
+.eval-tips li b { color: var(--ink); flex: none; }

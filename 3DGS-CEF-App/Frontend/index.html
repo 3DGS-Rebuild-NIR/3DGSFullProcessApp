@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IR强化的3DGS全链路重建系统</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/app.css">
 <script type="module" src="viewer/mount.js"></script>
 <!-- Three.js for PLY model preview -->
@@ -18,6 +15,7 @@
 <link rel="stylesheet" href="styles/pages/preproc.css">
 <link rel="stylesheet" href="styles/pages/capture.css">
 <link rel="stylesheet" href="styles/pages/recon.css">
+<link rel="stylesheet" href="styles/pages/evaluate.css">
 <link rel="stylesheet" href="viewer/viewer.css">
 </head>
 <body>
@@ -25,11 +23,6 @@
 
   <header class="topbar">
     <div class="brand"><span class="logo"><img src="icon.png" alt=""></span><span class="txt">IR强化的3DGS全链路重建系统</span></div>
-    <nav class="tabs" id="tabs">
-      <button class="tab" data-tab="capture">拍摄系统</button>
-      <button class="tab active" data-tab="preproc">重建预处理系统</button>
-      <button class="tab" data-tab="recon">主重建系统（3DGS + IR强化）</button>
-    </nav>
     <div class="right">
       <button class="settings" id="settingsBtn" title="设置">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -49,6 +42,19 @@
       </div>
     </div>
   </header>
+
+  <!-- ===== 导航栏（内容上方新栏，背景留白；4 个选项在灰色容器内用 | 隔开） ===== -->
+  <div class="nav-row">
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-tab="capture">拍摄系统</button>
+      <span class="tab-sep">|</span>
+      <button class="tab active" data-tab="preproc">重建预处理系统</button>
+      <span class="tab-sep">|</span>
+      <button class="tab" data-tab="recon">主重建系统</button>
+      <span class="tab-sep">|</span>
+      <button class="tab" data-tab="evaluate">评估验证</button>
+    </nav>
+  </div>
 
   <main class="workspace" id="workspace">
 
@@ -354,7 +360,7 @@
         </div>
       </div>
 
-      <div class="card stretch">
+      <div class="card stretch motion-card">
         <div class="card-title">运动控制</div>
         <div class="dpad">
           <button class="key w" data-dir="up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><b>W</b></button>
@@ -994,6 +1000,128 @@
         </div>
       </div>
     </section>
+
+    <!-- ===== EVALUATE: LEFT 输入设置 ===== -->
+    <section class="col evaluate-col-left" data-pane="evaluate" style="display:none">
+      <div class="card">
+        <div class="card-title">输入数据</div>
+        <div class="form-group">
+          <label>GT 真值图片目录</label>
+          <div class="input-row">
+            <input type="text" id="evalGtDir" placeholder="如 D:/dataset/imgs（原始测试图）">
+            <button class="btn" id="evalGtDirBtn" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Pred 渲染图片目录</label>
+          <div class="input-row">
+            <input type="text" id="evalPredDir" placeholder="如 D:/dataset_exports/eval_30000">
+            <button class="btn" id="evalPredDirBtn" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+          <span class="info-hint">按文件名主干与 GT 配对，扩展名支持 png/jpg/jpeg/bmp/tif/webp</span>
+        </div>
+        <div class="form-group">
+          <label>输出目录（可选，写入 summary.json / per_image.csv / summary.txt）</label>
+          <div class="input-row">
+            <input type="text" id="evalOutDir" placeholder="留空则仅页面展示报告">
+            <button class="btn" id="evalOutDirBtn" title="浏览">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">评估设置</div>
+        <div class="form-group">
+          <label>评估指标</label>
+          <div class="eval-metric-chips" id="evalMetricChips">
+            <label class="eval-chip on"><input type="checkbox" name="evalMetric" value="psnr" checked><span class="dot"></span>PSNR</label>
+            <label class="eval-chip on"><input type="checkbox" name="evalMetric" value="ssim" checked><span class="dot"></span>SSIM</label>
+            <label class="eval-chip on"><input type="checkbox" name="evalMetric" value="ms-ssim" checked><span class="dot"></span>MS-SSIM</label>
+            <label class="eval-chip on"><input type="checkbox" name="evalMetric" value="rmse" checked><span class="dot"></span>RMSE</label>
+            <label class="eval-chip on"><input type="checkbox" name="evalMetric" value="mae" checked><span class="dot"></span>MAE</label>
+            <label class="eval-chip off" title="LPIPS 需要 Python + torch + lpips 后端（3DGSVerify/evaluate.py），内置 JS 引擎暂不支持">
+              <input type="checkbox" name="evalMetric" value="lpips" disabled><span class="dot"></span>LPIPS
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>评估宽度（按比例缩放，加速大图评估）</label>
+          <select id="evalSize">
+            <option value="original" selected>保持原始尺寸</option>
+            <option value="1920">1920px</option>
+            <option value="1280">1280px</option>
+            <option value="800">800px</option>
+            <option value="512">512px</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>最大图片数（0 = 全部）</label>
+          <input type="number" id="evalMaxImages" value="0" min="0" placeholder="0 = 全部">
+        </div>
+        <div class="form-group">
+          <label>随机种子（抽样用）</label>
+          <input type="number" id="evalSeed" value="0" min="0">
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:auto">
+        <div class="btn-row">
+          <button class="btn-p" style="flex:1;height:36px;font-size:12px" id="evalStartBtn">开始评估</button>
+          <button class="btn" style="height:36px" id="evalDemoBtn" title="无需真实数据，合成 6 对图片跑通全流程">演示模式</button>
+          <button class="btn btn-danger" style="height:36px" id="evalStopBtn" disabled>停止</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EVALUATE: MIDDLE 报告 ===== -->
+    <section class="col evaluate-col-mid" data-pane="evaluate" style="display:none">
+      <div class="card stretch">
+        <div class="card-title">评估报告</div>
+        <div id="evalReport">
+          <div style="padding:40px 20px;text-align:center;color:var(--ink-3)">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="margin:0 auto 12px;display:block;opacity:.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">尚未执行评估</div>
+            <div style="font-size:11px">选择 GT / Pred 目录后点击「开始评估」，或点击「演示模式」快速验证流程<br>评估完成后在此生成量化评估报告</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EVALUATE: RIGHT 进度 ===== -->
+    <section class="col evaluate-col-right" data-pane="evaluate" style="display:none">
+      <div class="card">
+        <div class="card-title">评估进度</div>
+        <div class="eval-progress">
+          <div class="eval-progress-top">
+            <span id="evalDone" style="font-size:11px;color:var(--ink-2)">-</span>
+            <span class="pct" id="evalProgressPct">0%</span>
+          </div>
+          <div class="eval-progress-bar"><div class="eval-progress-fill" id="evalProgressFill"></div></div>
+          <div class="eval-progress-label" id="evalProgressLabel">等待开始</div>
+          <div class="eval-stat-grid">
+            <div class="eval-stat"><span class="k">已用时间</span><span class="v mono" id="evalElapsed">00:00</span></div>
+            <div class="eval-stat"><span class="k">当前配对</span><span class="v" id="evalCurPair">-</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card eval-tips">
+        <div class="card-title">说明</div>
+        <ul>
+          <li><b>原理</b>：将重建渲染的测试视图与真值（GT）测试视图逐张对比，输出新视角合成标准量化指标。</li>
+          <li><b>指标</b>：PSNR / SSIM / MS-SSIM（越大越好）、RMSE / MAE（越小越好）。</li>
+          <li><b>口径</b>：在 8-bit 量化后的图像上计算（与渲染 PNG 保存口径一致）；SSIM 采用 11-tap Gaussian（σ=1.5），C1=0.01²，C2=0.03²。</li>
+          <li><b>配对</b>：GT 与 Pred 按文件名主干配对，未匹配到的图片会在报告中提示。</li>
+          <li><b>参数</b>：评估宽度按比例缩放，可加速大图评估；最大图片数 &gt;0 时按随机种子抽样；填写输出目录可写出 summary.json / per_image.csv / summary.txt。</li>
+        </ul>
+      </div>
+    </section>
   </main>
 
   <footer class="statusbar" id="statusbar">
@@ -1183,6 +1311,10 @@
 <script src="scripts/preproc/pipeline.js"></script>
 <script src="scripts/preproc/ui.js"></script>
 <script src="scripts/preproc/state.js"></script>
+<script src="scripts/evaluate/metrics.js"></script>
+<script src="scripts/evaluate/io.js"></script>
+<script src="scripts/evaluate/report.js"></script>
+<script src="scripts/evaluate/core.js"></script>
 <script src="scripts/brush/args.js"></script>
 <script src="scripts/brush/parse.js"></script>
 <script src="scripts/recon/core.js"></script>

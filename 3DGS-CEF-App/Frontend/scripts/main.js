@@ -70,6 +70,7 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
   try { if (typeof initCapture === 'function') initCapture(); } catch (e) { log('初始化捕获模块失败: ' + e.message, 'error'); }
   try { if (typeof renderTrajectories === 'function') renderTrajectories(); } catch (e) { log('渲染轨迹失败: ' + e.message, 'error'); }
   try { if (typeof updateProgress === 'function') updateProgress(); } catch (e) { log('更新进度失败: ' + e.message, 'error'); }
+  try { if (typeof initEvaluate === 'function') initEvaluate(); } catch (e) { log('初始化评估模块失败: ' + e.message, 'error'); }
 
   startSystemMonitor();
 })();
