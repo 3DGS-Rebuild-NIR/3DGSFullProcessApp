@@ -6,7 +6,9 @@ function parseReconOutput(msg) {
       var d = JSON.parse(msg);
       if (d.type === 'log') { RecLog(d.message || msg, 'system'); return; }
       if (d.type === 'error') { RecLog('[ERROR] ' + (d.message || msg), 'error'); return; }
-      if (d.step != null || d.psnr != null) { updateReconMetrics(d); return; }
+      // 结构化事件（brush-headless）：step/eval/phase/summary/done/report/...
+      handleBrushEvent(d);
+      return;
     }
   } catch(e) {}
 

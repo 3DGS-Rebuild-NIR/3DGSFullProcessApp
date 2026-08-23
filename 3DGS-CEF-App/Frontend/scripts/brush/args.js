@@ -28,7 +28,8 @@ function buildBrushArgs() {
     '--max-splats ' + $num('reconMaxSplats',10000000),
     '--sh-degree ' + $num('reconSHDegree',3),
     '--max-resolution ' + $num('reconMaxResolution',1920),
-    '--eval-every 999999',
+    // 实时评估：由 brush-headless 自调度详细评估（PSNR/SSIM/MS-SSIM/RMSE/MAE/LPIPS）
+    '--eval-every ' + $num('reconEvalEvery',1000),
     '--export-every ' + $num('reconExportEvery',5000)];
   var ep = $val('reconExportPath');
   if (ep) p.push('--export-path ' + q(_normPath(ep)));

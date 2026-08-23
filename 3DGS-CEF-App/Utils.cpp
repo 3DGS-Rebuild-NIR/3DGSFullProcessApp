@@ -5,6 +5,36 @@
 #include <include/cef_parser.h>
 #include "Encoding.h"
 
+#include <mutex>
+
+// ---- 子进程控制状态（管道协议） ----
+static std::mutex g_procMutex;
+static HANDLE g_childStdinWrite = NULL;   // 写入子进程 stdin 的管道句柄
+static HANDLE g_childProcess = NULL;      // 子进程句柄（TerminateProcess 兜底用）
+
+bool SendCommandToProcess(const std::string& jsonLine) {
+    std::lock_guard<std::mutex> lock(g_procMutex);
+    if (!g_childStdinWrite) return false;
+    std::string line = jsonLine;
+    if (line.empty() || line.back() != '\n') line += "\n";
+    DWORD written = 0;
+    BOOL ok = WriteFile(g_childStdinWrite, line.c_str(), (DWORD)line.size(), &written, NULL);
+    return ok && written == line.size();
+}
+
+void KillRunningProcess(DWORD exitCode) {
+    std::lock_guard<std::mutex> lock(g_procMutex);
+    if (g_childProcess) {
+        TerminateProcess(g_childProcess, exitCode);
+    }
+}
+
+static void ClearChildState() {
+    std::lock_guard<std::mutex> lock(g_procMutex);
+    if (g_childStdinWrite) { CloseHandle(g_childStdinWrite); g_childStdinWrite = NULL; }
+    g_childProcess = NULL;
+}
+
 std::string GetExcutableDir() {
 	char exePath[MAX_PATH];
 	GetModuleFileNameA(NULL, exePath, MAX_PATH);
@@ -145,6 +175,7 @@ bool ExecuteCommand(const std::wstring& cmdLine,
     DWORD timeoutMs) {
 
     HANDLE hReadPipe = NULL, hWritePipe = NULL;
+    HANDLE hReadPipeIn = NULL, hWritePipeIn = NULL;
     SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
 
     if (callback) {
@@ -152,6 +183,14 @@ bool ExecuteCommand(const std::wstring& cmdLine,
             return false;
         }
         SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
+
+        // 双向管道：同时创建子进程 stdin 写管道，用于发送控制命令
+        if (!CreatePipe(&hReadPipeIn, &hWritePipeIn, &sa, 0)) {
+            CloseHandle(hReadPipe);
+            CloseHandle(hWritePipe);
+            return false;
+        }
+        SetHandleInformation(hWritePipeIn, HANDLE_FLAG_INHERIT, 0);
     }
 
     STARTUPINFOW si = { sizeof(STARTUPINFOW) };
@@ -160,6 +199,7 @@ bool ExecuteCommand(const std::wstring& cmdLine,
     if (callback) {
         si.hStdOutput = hWritePipe;
         si.hStdError = hWritePipe;
+        si.hStdInput = hReadPipeIn;
         si.dwFlags |= STARTF_USESTDHANDLES;
     }
 
@@ -173,8 +213,19 @@ bool ExecuteCommand(const std::wstring& cmdLine,
         if (callback) {
             CloseHandle(hReadPipe);
             CloseHandle(hWritePipe);
+            CloseHandle(hReadPipeIn);
+            CloseHandle(hWritePipeIn);
         }
         return false;
+    }
+
+    // 记录子进程句柄与 stdin 写端（供 SendCommandToProcess / KillRunningProcess 使用）
+    {
+        std::lock_guard<std::mutex> lock(g_procMutex);
+        if (g_childProcess) CloseHandle(g_childProcess);
+        g_childProcess = pi.hProcess;
+        if (g_childStdinWrite) CloseHandle(g_childStdinWrite);
+        g_childStdinWrite = hWritePipeIn;
     }
 
     if (callback) {
@@ -223,6 +274,9 @@ bool ExecuteCommand(const std::wstring& cmdLine,
     GetExitCodeProcess(pi.hProcess, &exitCode);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
+    CloseHandle(hReadPipeIn);
+
+    ClearChildState();
 
     return exitCode == 0;
 }

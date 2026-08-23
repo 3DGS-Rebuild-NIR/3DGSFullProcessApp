@@ -23,12 +23,15 @@ static bool g_gsLock = false;
 bool Init3DGSCore() {
     fs::path pluginDir = fs::current_path() / "plugins";
 
-    // 查找brushIR
-    if (fs::exists(pluginDir / "brushIR" / "brush.exe")) {
+    // 查找 brushIR（优先 brush-headless.exe，回退 brush.exe）
+    if (fs::exists(pluginDir / "brushIR" / "brush-headless.exe")) {
+        g_brushirPath = pluginDir / "brushIR" / "brush-headless.exe";
+    }
+    else if (fs::exists(pluginDir / "brushIR" / "brush.exe")) {
         g_brushirPath = pluginDir / "brushIR" / "brush.exe";
     }
     else {
-        HandleException("3DGSNotFound", "brush.exe not found in ./plugins or current directory", true);
+        HandleException("3DGSNotFound", "brush-headless.exe not found in ./plugins or current directory", true);
         return false;
     }
 
@@ -37,6 +40,28 @@ bool Init3DGSCore() {
 
 bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
     CefRefPtr<CefMessageRouterBrowserSide::Callback> callback) {
+
+    // 解析子命令：请求格式 "recon <subcmd|base64args>"
+    std::istringstream iss(request);
+    std::string function;
+    std::string rest;
+    iss >> function;
+    std::getline(iss, rest);
+    // trim
+    rest.erase(0, rest.find_first_not_of(" \t\r\n"));
+
+    // 子命令：stop —— 向 brush-headless 的 stdin 发停止命令（优雅停止）。
+    // 不占用 g_gsMutex，避免与阻塞中的训练查询（ExecuteProcess 常驻）死锁。
+    if (rest == "stop") {
+        bool ok = SendCommandToProcess("{\"cmd\":\"stop\"}");
+        callback->Success(CefString(ok ? "stopped" : "no-process"));
+        return true;
+    }
+    if (rest.empty()) {
+        callback->Failure(-1, CefString("recon: missing args"));
+        return true;
+    }
+
     std::lock_guard<std::mutex> lock(g_gsMutex);
     g_gsLock = true;
 
@@ -50,15 +75,15 @@ bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
         }
     }
 
-    std::istringstream iss(request);
-    std::string tdgsName;//
     std::string args;
-    iss >> tdgsName;
-    iss >> args;
-    
-    args = Base64DecodeToString(args) + " --with-viewer";
-    
-    // Set RUST_LOG so brush outputs training progress to stdout
+    try {
+        args = Base64DecodeToString(rest);
+    } catch (...) {
+        args = rest;
+    }
+
+    // brush-headless 无查看器；训练/评估参数由前端组装
+    // （含 --eval-split-every、--eval-every 等实时评估所需参数）
     SetEnvironmentVariableW(L"RUST_LOG_STYLE", L"always");
     SetEnvironmentVariable(L"RUST_LOG", L"info");
     ExecuteProcess(g_brushirPath, utf8_to_wstring(args), [&](const std::string& output) {

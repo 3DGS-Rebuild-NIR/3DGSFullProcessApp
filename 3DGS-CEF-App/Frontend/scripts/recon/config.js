@@ -31,7 +31,8 @@ function gatherConfig() {
     renderMode: $val('reconRenderMode')||'default',
     maxResolution: $num('reconMaxResolution',1920),
     exportEvery: $num('reconExportEvery',5000), exportPath: $val('reconExportPath'),
-    maxFrames: $num('reconMaxFrames',0), evalSplitEvery: $num('reconEvalSplitEvery',0),
+    maxFrames: $num('reconMaxFrames',0), evalSplitEvery: $num('reconEvalSplitEvery',8),
+    evalEvery: $num('reconEvalEvery',1000),
     subsampleFrames: $num('reconSubsampleFrames',0)
   };
 }
@@ -59,7 +60,8 @@ function applyConfig(cfg) {
   if ($id('reconExportEvery'))  $id('reconExportEvery').value = cfg.exportEvery||5000;
   if ($id('reconExportPath'))   $id('reconExportPath').value = cfg.exportPath||'';
   if ($id('reconMaxFrames'))    $id('reconMaxFrames').value = cfg.maxFrames||0;
-  if ($id('reconEvalSplitEvery')) $id('reconEvalSplitEvery').value = cfg.evalSplitEvery||0;
+  if ($id('reconEvalSplitEvery')) $id('reconEvalSplitEvery').value = (cfg.evalSplitEvery == null ? 8 : cfg.evalSplitEvery);
+  if ($id('reconEvalEvery')) $id('reconEvalEvery').value = (cfg.evalEvery == null ? 1000 : cfg.evalEvery);
   if ($id('reconSubsampleFrames')) $id('reconSubsampleFrames').value = cfg.subsampleFrames||0;
   if ($id('reconColmapPath'))   $id('reconColmapPath').value = cfg.colmapPath||'';
   if ($id('reconImageDir'))     $id('reconImageDir').value = cfg.imageDir||'';

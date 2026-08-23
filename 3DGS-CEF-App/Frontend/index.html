@@ -620,6 +620,18 @@
             <span class="value green" id="reconSSIM">—</span>
           </div>
           <div class="metric-item">
+            <span class="label">MS-SSIM (↑)</span>
+            <span class="value green" id="reconMSSSIM">—</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">RMSE (↓)</span>
+            <span class="value green" id="reconRMSE">—</span>
+          </div>
+          <div class="metric-item">
+            <span class="label">MAE (↓)</span>
+            <span class="value green" id="reconMAE">—</span>
+          </div>
+          <div class="metric-item">
             <span class="label">LPIPS (↓)</span>
             <span class="value blue" id="reconLPIPS">—</span>
           </div>
@@ -633,7 +645,34 @@
             <span class="label">剩余时间</span>
             <span class="value" id="reconTimeLeft">—</span>
           </div>
+          <div class="row" style="margin-top:6px">
+            <button class="btn" onclick="evalTrainedPly()" title="选择 .ply 与数据集目录，由 brush-headless 渲染评估视角并输出完整指标报告">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+              评估已训 PLY
+            </button>
+            <span class="label" style="font-size:11px">对已训练模型输出完整评估报告</span>
+          </div>
         </div>
+      </div>
+
+      <!-- 实时评估（brush-headless 真实数据） -->
+      <div class="card" id="reconEvalCard" style="display:none">
+        <div class="card-title">实时评估 <span class="sec-badge" id="reconPhaseBadge" style="margin-left:6px"></span></div>
+        <svg id="reconMetricChart" width="100%" height="150" style="background:var(--bg-1);border:1px solid var(--line);border-radius:6px"></svg>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <span class="label">逐视角 PSNR/SSIM（最近一次评估）</span>
+          <button class="btn" onclick="exportEvalCSV()" title="导出评估数据 CSV（前端计算）">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            导出评估 CSV
+          </button>
+        </div>
+        <div id="reconEvalViews" style="max-height:200px;overflow:auto;margin-top:4px"></div>
+      </div>
+
+      <!-- 训练完成 / 已训 PLY 报告 -->
+      <div class="card" id="reconReportCard" style="display:none">
+        <div class="card-title">评估报告</div>
+        <div id="reconReportBody"></div>
       </div>
 
       <div class="card stretch">
@@ -917,8 +956,13 @@
             </div>
             <div class="setting-row">
               <label>评估拆分间隔</label>
-              <input type="number" id="reconEvalSplitEvery" value="0" min="0" max="1000" style="max-width:80px">
-              <span class="unit">0=不拆分</span>
+              <input type="number" id="reconEvalSplitEvery" value="8" min="0" max="1000" style="max-width:80px">
+              <span class="unit">每 N 张留 1 张作评估集</span>
+            </div>
+            <div class="setting-row">
+              <label>实时评估间隔</label>
+              <input type="number" id="reconEvalEvery" value="1000" min="50" max="100000" step="50" style="max-width:80px">
+              <span class="unit">每 N 步出一次详细指标</span>
             </div>
             <div class="setting-row">
               <label>子采样帧</label>
@@ -1317,6 +1361,7 @@
 <script src="scripts/evaluate/core.js"></script>
 <script src="scripts/brush/args.js"></script>
 <script src="scripts/brush/parse.js"></script>
+<script src="scripts/brush/events.js"></script>
 <script src="scripts/recon/core.js"></script>
 <script src="scripts/recon/log.js"></script>
 <script src="scripts/recon/config.js"></script>
