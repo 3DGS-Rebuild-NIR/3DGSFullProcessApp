@@ -72,6 +72,8 @@ document.getElementById('settingsBtn').addEventListener('click', function() {
   try { if (typeof updateProgress === 'function') updateProgress(); } catch (e) { log('更新进度失败: ' + e.message, 'error'); }
   try { if (typeof initEvaluate === 'function') initEvaluate(); } catch (e) { log('初始化评估模块失败: ' + e.message, 'error'); }
 
+  try { if (typeof ProjectUI !== 'undefined' && ProjectUI.init) ProjectUI.init(); } catch (e) { log('初始化工程项目失败: ' + e.message, 'error'); }
+
   startSystemMonitor();
 })();
 

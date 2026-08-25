@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="styles/pages/capture.css">
 <link rel="stylesheet" href="styles/pages/recon.css">
 <link rel="stylesheet" href="styles/pages/evaluate.css">
+<link rel="stylesheet" href="styles/components/projects.css">
 <link rel="stylesheet" href="viewer/viewer.css">
 </head>
 <body>
@@ -45,6 +46,10 @@
 
   <!-- ===== 导航栏（内容上方新栏，背景留白；4 个选项在灰色容器内用 | 隔开） ===== -->
   <div class="nav-row">
+    <button class="proj-btn" id="projBtn" title="工程项目管理">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span id="projBtnName">未命名项目</span>
+    </button>
     <nav class="tabs" id="tabs">
       <button class="tab" data-tab="capture">拍摄系统</button>
       <span class="tab-sep">|</span>
@@ -1179,6 +1184,50 @@
   </footer>
 </div>
 
+<!-- ===== 工程项目管理 ===== -->
+<div class="proj-overlay" id="projOverlay" style="display:none">
+  <div class="proj-drawer">
+    <div class="proj-header">
+      <div class="t">工程项目</div>
+      <button class="proj-close" id="projClose" title="关闭">&times;</button>
+    </div>
+    <div class="proj-toolbar">
+      <button class="btn-p" id="projNew">新建项目</button>
+      <button class="btn" id="projSave">保存当前</button>
+    </div>
+    <div class="proj-body">
+      <div class="proj-section-title">当前项目</div>
+      <div class="proj-current">
+        <div class="form-group">
+          <label>项目名称</label>
+          <input type="text" id="projCurName" placeholder="未命名项目">
+        </div>
+        <div class="note-grid">
+          <div class="form-group">
+            <label>拍摄日期</label>
+            <input type="date" id="projShootDate">
+          </div>
+          <div class="form-group">
+            <label>拍摄时间</label>
+            <input type="time" id="projShootTime">
+          </div>
+          <div class="form-group">
+            <label>天气</label>
+            <input type="text" id="projWeather" placeholder="晴 / 多云 / 雨 ...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>备注</label>
+          <input type="text" id="projRemark" placeholder="拍摄环境、设备、说明...">
+        </div>
+      </div>
+
+      <div class="proj-section-title">项目列表</div>
+      <div class="proj-list" id="projList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 
 <div class="traj-menu" id="trajMenu">
@@ -1369,6 +1418,9 @@
 <script src="scripts/recon/ply-viewer.js"></script>
 <script src="scripts/components/dialog.js"></script>
 <script src="scripts/components/settings.js"></script>
+<script src="scripts/project/store.js"></script>
+<script src="scripts/project/snapshot.js"></script>
+<script src="scripts/project/ui.js"></script>
 <script src="scripts/main.js"></script>
 </body>
 </html>
