@@ -32,6 +32,9 @@ function _listImages(scan, fallback) {
     _vpDir = scan;
     _vpPage = 1;
     $txt('reconViewpointCount', files.length);
+    // 数据概览联动（— 表示未扫描/无数据）
+    $txt('reconImgCount', files.length > 0 ? String(files.length) : '—');
+    $txt('reconCamCount', files.length > 0 ? String(files.length) : '—');
     var pag = $id('reconViewpointPagination');
     if (files.length === 0) {
       toast('未找到图片', 'var(--red)');

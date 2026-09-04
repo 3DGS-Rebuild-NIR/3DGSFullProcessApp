@@ -47,6 +47,12 @@ function buildBrushArgs() {
   var datasetPath = _datasetRoot(imgDir, colmapDir);
   function q(s) { return s.indexOf(' ') >= 0 ? '"' + s + '"' : s; }
 
+  // 数据集路径是必需参数：brush-headless 缺少 source 会直接 exit 1。
+  // 在前端明确报错，避免发出必败命令后 UI 卡在"训练中"。
+  if (!datasetPath) {
+    throw new Error('未设置数据集目录：请先在"输入数据"中选择包含 imgs/ 和 colmap/ 的数据集根目录');
+  }
+
   var p = ['--total-train-iters ' + $num('reconTrainSteps',30000),
     '--max-splats ' + $num('reconMaxSplats',10000000),
     '--sh-degree ' + $num('reconSHDegree',3),

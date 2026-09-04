@@ -1,6 +1,12 @@
 # 3DGS data files
 3DGS-Rebuild/
 
+# Agent
+.zcode/
+
+# vscode
+.vs/
+
 # nul
 nul
 

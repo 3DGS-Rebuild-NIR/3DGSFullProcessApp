@@ -74,8 +74,14 @@ function bindSliders() {
   });
   var t = $id('reconTotalSteps');
   if (t) t.addEventListener('change', function() {
-    Recon.total = parseInt(t.value) || 30000;
+    // 与训练设置区的 reconTrainSteps（滑块+数值）双向同步，
+    // 避免两处"总步数"显示不一致 / buildBrushArgs 取到旧值
+    var v = parseInt(t.value) || 30000;
+    Recon.total = v;
     $txt('reconMaxStep', Recon.total);
+    var s = $id('reconTrainSteps'), n = $id('reconTrainStepsVal');
+    if (s) { s.value = v; paintSlider(s); }
+    if (n) n.value = v;
     updateReconProgress();
   });
 }
@@ -89,7 +95,14 @@ function setTrainMode(mode) {
 
 function startReconTraining() {
   if (Recon.training) return;
-  var args = buildBrushArgs();
+  var args;
+  try {
+    args = buildBrushArgs();
+  } catch (e) {
+    toast(e.message, 'var(--red)');
+    RecLog('[参数错误] ' + e.message, 'error');
+    return;
+  }
   var hasIR = $id('reconEnableIR') && $id('reconEnableIR').checked;
   Recon.training = true; Recon.step = 0;
   Recon._startTime = Date.now();
