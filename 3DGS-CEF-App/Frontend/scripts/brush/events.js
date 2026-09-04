@@ -4,6 +4,7 @@
 
 var BrushEvents = {
   phase: 'rgb',
+  rgbTotal: 0,  // RGB 阶段总迭代数（IR 阶段事件里的 iter 是相对值，需加上它换算绝对迭代）
   series: [],   // [{iter, phase, psnr, ssim, ms_ssim, rmse, mae, lpips}]
   views: [],    // 最近一次评估的逐视角数据 [{name, psnr, ssim}]
   rgbFinal: null,
@@ -19,13 +20,21 @@ function handleBrushEvent(d) {
       break;
     case 'phase':
       BrushEvents.phase = d.name || 'rgb';
+      if (BrushEvents.phase === 'ir') {
+        // IR 阶段 step 事件的 iter 是 1..ir_iters 的相对值：进度 = rgbTotal + iter
+        BrushEvents.rgbTotal = $num('reconTrainSteps', 30000);
+        var irSteps = $num('reconIRSteps', 5000);
+        if (BrushEvents.rgbTotal && irSteps) {
+          Recon.total = BrushEvents.rgbTotal + irSteps;
+        }
+      }
       $txt('reconPhaseBadge', BrushEvents.phase === 'ir' ? 'IR 强化中' : 'RGB 训练中');
       $txt('barStatus', BrushEvents.phase === 'ir' ? 'IR 训练阶段' : '训练中…');
       RecLog(BrushEvents.phase === 'ir' ? '进入 IR 强化阶段' : 'RGB 训练阶段', 'info');
       break;
     case 'step':
       if (d.iter != null) {
-        Recon.step = parseInt(d.iter);
+        Recon.step = parseInt(d.iter) + (BrushEvents.phase === 'ir' ? BrushEvents.rgbTotal : 0);
         Recon.total = Math.max(Recon.total, Recon.step);
         updateReconProgress();
       }
@@ -260,24 +269,38 @@ function renderBrushReport(d) {
 }
 
 // ---------------- 已训 PLY 评估入口 ----------------
+// 评估渲染图有两个来源：
+// 1) 训练循环内置 eval（--eval-save-to-disk）：export_path/eval_{iter}/ 下
+// 2) headless 详细 eval（--eval-out）：eval_out/eval_{iter}_{phase}/ 下（每张含指标）
+// 前端构建参数时把 --eval-out 指到与 export 相同的根目录，因此优先提示该目录。
 function evalTrainedPly() {
-  DialogCEF.openFile({ title: '选择已训练的 .ply 模型', filters: 'PLY 文件|*.ply' }).then(function(ply) {
-    if (!ply) return;
-    DialogCEF.pickDir({ title: '选择数据集目录（含 colmap 与 imgs）' }).then(function(dir) {
-      if (!dir) return;
-      var parts = ['--ply "' + ply + '"'];
-      var es = $num('reconEvalSplitEvery', 8);
-      if (es > 0) parts.push('--eval-split-every ' + es);
-      parts.push('--max-resolution ' + $num('reconMaxResolution', 1920));
-      parts.push('"' + dir + '"');
-      RecLog('开始评估已训 PLY: ' + ply, 'info');
-      $show('reconEvalCard', true);
-      $txt('reconPhaseBadge', '评估中');
-      ReconCEF.evalPly(parts.join(' ')).catch(function(e) {
-        RecLog('评估结束: ' + e.message, 'system');
-      });
-    });
-  });
+  // 获取导出路径
+  var exportPath = $val('reconExportPath');
+  var datasetPath = $val('reconImageDir');
+  if (!datasetPath) {
+    toast('请先设置数据集根目录', 'var(--red)');
+    return;
+  }
+
+  var evalBase = _resolveExportBase(exportPath, _datasetRoot($val('reconImageDir'), $val('reconColmapPath')));
+
+  // 弹出提示，引导用户到评估 Tab
+  var msg = '训练时已自动生成评估渲染图（--eval-out / --eval-save-to-disk）。\n\n' +
+    '评估渲染图根目录：\n' + evalBase + '\n' +
+    '（子目录形如 eval_{iter}_{phase} 或 eval_{iter}）\n\n' +
+    '请切换到「评估验证」标签页：\n' +
+    '1. GT 目录：选择数据集的图像目录\n' +
+    '2. Pred 目录：选择上述某一评估子目录\n' +
+    '3. 点击「开始评估」即可获得完整指标报告\n\n' +
+    '是否立即切换到评估标签页？';
+
+  if (confirm(msg)) {
+    // 切换到评估 Tab
+    document.querySelector('.tab[data-tab="evaluate"]').click();
+    // 自动填入目录（默认取数字最大的 eval 子目录交给用户确认；此处先填根目录）
+    if ($id('evalPredDir')) $id('evalPredDir').value = evalBase;
+    if ($id('evalGtDir')) $id('evalGtDir').value = _normPath($val('reconImageDir'));
+  }
 }
 
 // ---------------- 训练完成 / 预览加载 ----------------
@@ -289,4 +312,5 @@ function onBrushDone(d) {
   if (d.export_ply) {
     try { loadPLYModel(d.export_ply); } catch (e) { RecLog('PLY 预览加载失败: ' + e.message, 'error'); }
   }
+  _showEvalPathHint();
 }

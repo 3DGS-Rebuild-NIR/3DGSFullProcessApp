@@ -62,6 +62,7 @@ function applyConfig(cfg) {
   if ($id('reconMaxFrames'))    $id('reconMaxFrames').value = cfg.maxFrames||0;
   if ($id('reconEvalSplitEvery')) $id('reconEvalSplitEvery').value = (cfg.evalSplitEvery == null ? 8 : cfg.evalSplitEvery);
   if ($id('reconEvalEvery')) $id('reconEvalEvery').value = (cfg.evalEvery == null ? 1000 : cfg.evalEvery);
+  if ($id('reconEvalEveryDetail')) $id('reconEvalEveryDetail').value = (cfg.evalEvery == null ? 1000 : cfg.evalEvery);
   if ($id('reconSubsampleFrames')) $id('reconSubsampleFrames').value = cfg.subsampleFrames||0;
   if ($id('reconColmapPath'))   $id('reconColmapPath').value = cfg.colmapPath||'';
   if ($id('reconImageDir'))     $id('reconImageDir').value = cfg.imageDir||'';

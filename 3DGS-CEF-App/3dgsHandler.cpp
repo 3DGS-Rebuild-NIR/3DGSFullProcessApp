@@ -18,10 +18,15 @@ namespace fs = std::filesystem;
 
 static std::mutex g_gsMutex;
 fs::path g_brushirPath;
-static bool g_gsLock = false;
 
 bool Init3DGSCore() {
-    fs::path pluginDir = fs::current_path() / "plugins";
+    // 使用可执行文件所在目录，不依赖 fs::current_path()（可能尚未设置）
+    // 注意：不在工作线程中调用 SetCurrentDirectory，避免影响其他线程
+    wchar_t exePathBuf[MAX_PATH];
+    GetModuleFileNameW(NULL, exePathBuf, MAX_PATH);
+    fs::path exePath(exePathBuf);
+    fs::path exeDir = exePath.parent_path();
+    fs::path pluginDir = exeDir / "plugins";
 
     // 查找 brushIR（优先 brush-headless.exe，回退 brush.exe）
     if (fs::exists(pluginDir / "brushIR" / "brush-headless.exe")) {
@@ -31,12 +36,17 @@ bool Init3DGSCore() {
         g_brushirPath = pluginDir / "brushIR" / "brush.exe";
     }
     else {
-        HandleException("3DGSNotFound", "brush-headless.exe not found in ./plugins or current directory", true);
+        HandleException("3DGSNotFound", "brush-headless.exe not found in " + pluginDir.string() + "/brushIR/", true);
         return false;
     }
 
     return true;
 }
+
+// 当前训练子进程的专属句柄（stdin 写端 + 进程句柄）。
+// 与 colmap 等其他 ExecuteProcess 使用方的全局单槽状态隔离。
+static std::mutex g_brushProcMutex;
+static ProcHandle g_brushProc;
 
 bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
     CefRefPtr<CefMessageRouterBrowserSide::Callback> callback) {
@@ -53,8 +63,19 @@ bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
     // 子命令：stop —— 向 brush-headless 的 stdin 发停止命令（优雅停止）。
     // 不占用 g_gsMutex，避免与阻塞中的训练查询（ExecuteProcess 常驻）死锁。
     if (rest == "stop") {
-        bool ok = SendCommandToProcess("{\"cmd\":\"stop\"}");
-        callback->Success(CefString(ok ? "stopped" : "no-process"));
+        // 优先写 brush 专属句柄（不受 colmap 等覆盖全局单槽的影响），
+        // 无专属句柄时退回全局单槽（兼容 brush.exe 老路径）。
+        bool ok;
+        {
+            std::lock_guard<std::mutex> lk(g_brushProcMutex);
+            ok = SendCommandToProc(g_brushProc, "{\"cmd\":\"stop\"}");
+        }
+        if (!ok) ok = SendCommandToProcess("{\"cmd\":\"stop\"}");
+        if (!ok) {
+            // stdin 均不可用：兜底强杀全局槽（训练进程最近一次注册）
+            KillRunningProcess(1);
+        }
+        callback->Success(CefString(ok ? "stopped" : "killed"));
         return true;
     }
     if (rest.empty()) {
@@ -63,15 +84,12 @@ bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
     }
 
     std::lock_guard<std::mutex> lock(g_gsMutex);
-    g_gsLock = true;
 
-    // 确保处理器已初始化
-    static bool initialized = false;
-    if (!initialized) {
-        initialized = Init3DGSCore();
-        if (!initialized) {
-            g_gsLock = false;
-            return false;
+    // 确保处理器已初始化（失败时允许下次重试）
+    if (g_brushirPath.empty()) {
+        if (!Init3DGSCore()) {
+            callback->Failure(-1, CefString("brush-headless.exe not found in ./plugins/brushIR/"));
+            return true;
         }
     }
 
@@ -81,18 +99,50 @@ bool Handle3dgsQuery(CefRefPtr<CefBrowser> browser, std::string request,
     } catch (...) {
         args = rest;
     }
+    if (args.empty()) {
+        callback->Failure(-1, CefString("recon: invalid/empty args (base64 decode failed)"));
+        return true;
+    }
 
-    // brush-headless 无查看器；训练/评估参数由前端组装
-    // （含 --eval-split-every、--eval-every 等实时评估所需参数）
-    SetEnvironmentVariableW(L"RUST_LOG_STYLE", L"always");
+    // 输出完整命令行以便调试（C++ 自身消息带 [3DGS] 前缀；
+    // 子进程输出原样透传，由前端解析 JSON 事件）
+    std::string cmdLog = g_brushirPath.string() + " " + args;
+    Update3DGSOutput(browser, "[3DGS] 执行命令: " + cmdLog);
+
+    // RUST_LOG_STYLE=never 避免 ANSI 转义码污染日志行
+    SetEnvironmentVariableW(L"RUST_LOG_STYLE", L"never");
     SetEnvironmentVariable(L"RUST_LOG", L"info");
+
+    ProcHandle proc;
+    DWORD exitCode = (DWORD)-1;
     ExecuteProcess(g_brushirPath, utf8_to_wstring(args), [&](const std::string& output) {
-        Update3DGSOutput(browser, "[3DGS] "+output);
-        });
+        Update3DGSOutput(browser, output);
+        }, INFINITE, &proc, &exitCode);
     SetEnvironmentVariable(L"RUST_LOG", NULL);
 
-    g_gsLock = false;
+    {
+        std::lock_guard<std::mutex> lk(g_brushProcMutex);
+        CloseProcHandle(g_brushProc);
+        g_brushProc = proc;
+    }
 
+    if (exitCode == (DWORD)-1) {
+        // CreateProcessW 本身失败（进程从未启动）
+        std::string errMsg = "brush-headless.exe 启动失败 (Win32 error: " + std::to_string(GetLastError()) + ")";
+        Update3DGSOutput(browser, "[3DGS] [ERROR] " + errMsg);
+        callback->Failure(-1, CefString(errMsg));
+        return true;
+    }
+    if (exitCode != 0) {
+        // 进程启动了但非零退出：clap 参数错误 (2)、panic (101) 等都走到这里
+        std::string errMsg = "brush-headless.exe 异常退出 (exit code " + std::to_string(exitCode) +
+            ")。若刚改过训练参数，请检查参数拼写/取值。";
+        Update3DGSOutput(browser, "[3DGS] [ERROR] " + errMsg);
+        callback->Failure(-1, CefString(errMsg));
+        return true;
+    }
+
+    callback->Success(CefString("done"));
     return true;
 }
 

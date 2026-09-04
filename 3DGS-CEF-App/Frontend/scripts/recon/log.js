@@ -36,7 +36,7 @@ function downloadReconLog() {
 window.update3DGSOutput = function(encodedMsg) {
   _heartbeatPing();
   try {
-    var msg = atob(encodedMsg);
+    var msg = _unb64(encodedMsg);
     parseReconOutput(msg);
   } catch (e) {
     try { RecLog(encodedMsg, 'system'); } catch(_) {}

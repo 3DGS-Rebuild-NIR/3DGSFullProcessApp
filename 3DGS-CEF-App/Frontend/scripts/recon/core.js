@@ -32,6 +32,13 @@ function initRecon() {
     }.bind(this));
   });
   setTimeout(initPLYViewer, 100);
+  // 同步两个 eval-every 输入框
+  var evalEvery = $id('reconEvalEvery');
+  var evalEveryDetail = $id('reconEvalEveryDetail');
+  if (evalEvery && evalEveryDetail) {
+    evalEvery.addEventListener('change', function() { evalEveryDetail.value = this.value; });
+    evalEveryDetail.addEventListener('change', function() { evalEvery.value = this.value; });
+  }
 }
 
 function queryGPUInfo() {
@@ -105,7 +112,7 @@ function stopReconTraining() {
     $txt('barStatus', '训练已停止');
     RecLog('训练已停止', 'system');
     toast('训练已停止');
-  }).catch(function(e) { toast('停止失败', 'var(--red)'); });
+  }).catch(function(e) { toast('停止失败: ' + e.message, 'var(--red)'); });
 }
 
 function startReconTimer() {
@@ -151,6 +158,20 @@ function updateReconMetrics(m) {
   if (m.plyPath) loadPLYModel(m.plyPath);
   if (m.status === 'complete' || m.status === 'done') {
     Recon.training = false; updateReconUI();
-    $txt('barStatus', '训练完成'); toast('训练完成！');
+    $txt('barStatus', '训练完成');
+    toast('训练完成！');
+    _showEvalPathHint();
   }
+}
+
+function _showEvalPathHint() {
+  var exportPath = $val('reconExportPath');
+  var datasetPath = $val('reconImageDir');
+  if (!datasetPath) return;
+
+  // 与前端构建参数的 --eval-out 一致（_resolveExportBase），子目录形如 eval_{iter}_{phase}
+  var evalDir = _resolveExportBase(exportPath, _datasetRoot(datasetPath, $val('reconColmapPath')));
+
+  RecLog('评估渲染图已保存到: ' + evalDir + '（子目录 eval_{iter}_{phase}）', 'info');
+  RecLog('提示：切换到「评估验证」标签页，选择 GT 目录和上述目录下的评估子目录进行评估', 'info');
 }

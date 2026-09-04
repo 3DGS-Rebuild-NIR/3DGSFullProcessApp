@@ -1,11 +1,13 @@
 var reBrushLine = /^(?:\[3DGS\]\s+)?\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\s+(\w+)\s+([\w:]+)\]\s+(.*)/;
 
 function parseReconOutput(msg) {
+  // 兼容 C++ 侧可能存在的 "[3DGS] " 前缀（子进程输出应为原样透传，但老版本会加前缀）
+  var stripped = msg.replace(/^\[3DGS\]\s+/, '');
   try {
-    if (msg.charAt(0) === '{') {
-      var d = JSON.parse(msg);
-      if (d.type === 'log') { RecLog(d.message || msg, 'system'); return; }
-      if (d.type === 'error') { RecLog('[ERROR] ' + (d.message || msg), 'error'); return; }
+    if (stripped.charAt(0) === '{') {
+      var d = JSON.parse(stripped);
+      if (d.type === 'log') { RecLog(d.message || stripped, 'system'); return; }
+      if (d.type === 'error') { RecLog('[ERROR] ' + (d.message || stripped), 'error'); return; }
       // 结构化事件（brush-headless）：step/eval/phase/summary/done/report/...
       handleBrushEvent(d);
       return;

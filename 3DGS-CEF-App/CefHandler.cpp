@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include <list>
 #include <sstream>
+#include <iostream>
 #include <string>
 #include "include/cef_app.h"
 #include "include/cef_client.h"
@@ -193,9 +194,11 @@ void CallJSFunction(CefRefPtr<CefBrowser> browser, std::string js) {
 	}
 
 	// 现在在UI线程，安全执行
+	// 浏览器已关闭/不存在时静默丢弃消息（例如训练输出推送到已关闭的页面），
+	// 不再致命退出——否则训练中关闭窗口会连带杀掉整个应用。
 	if (!browser || browser->IsSame(nullptr)) {
-		return; // browser已无效
-		HandleException("CefHandlerException", "failed to callback js function, no browser instance\nJS code:\n" + js, true);
+		std::cerr << "[CallJSFunction] dropped JS call (no browser): " << js.substr(0, 200) << std::endl;
+		return;
 	}
 
 	// 获取当前页面的主框架（Main Frame）

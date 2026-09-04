@@ -68,5 +68,5 @@ function sendRequest(req, opts) {
 // 预处理系统输出（FFmpeg / COLMAP 日志）
 window.updatePreprocOutput = function(encodedMsg) {
   _heartbeatPing();
-  try { log(atob(encodedMsg), 'system'); } catch (e) { log(encodedMsg, 'system'); }
+  try { log(_unb64(encodedMsg), 'system'); } catch (e) { log(encodedMsg, 'system'); }
 };
